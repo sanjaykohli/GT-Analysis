@@ -40,7 +40,7 @@ This website allows users to select two game theory scenarios and explore how th
 - Vanilla JavaScript  
 
 ## How to Use
-1. Visit the website: https://sanjaykohli.github.io/GT-Analysis/  
+1. Visit the website: <a href="https://sanjaykohli.github.io/GT-Analysis/" target="_blank">Game Theory Comparison</a>  
 2. Select two games from the dropdown menus  
 3. Read and compare the insights, examples, and strategies  
 
