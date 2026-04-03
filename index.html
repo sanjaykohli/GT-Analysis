@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Theory Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --surface: #f5f5f5;
+    --border: #d4d4d4;
+    --border-strong: #aaaaaa;
+    --text: #111111;
+    --muted: #666666;
+    --subtle: #999999;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Instrument Sans', sans-serif;
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .wrapper {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 52px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 44px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 28px;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(30px, 5vw, 50px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 520px;
+  }
+
+  /* Selectors */
+  .selector-row {
+    display: grid;
+    grid-template-columns: 1fr 36px 1fr;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 32px;
+  }
+
+  .vs-badge {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--subtle);
+    text-align: center;
+    padding-bottom: 10px;
+  }
+
+  .select-wrap { position: relative; }
+
+  .select-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  select {
+    width: 100%;
+    padding: 10px 36px 10px 12px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 14px;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  select:hover { border-color: #555; }
+  select:focus { border-color: var(--text); }
+
+  .select-wrap::after {
+    content: '↓';
+    position: absolute;
+    right: 11px;
+    bottom: 11px;
+    color: var(--muted);
+    font-size: 12px;
+    pointer-events: none;
+  }
+
+  /* Main card grid */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+  }
+
+  .card {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    transition: opacity 0.2s ease;
+  }
+
+  .card:last-child { border-right: none; }
+
+  .card-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--subtle);
+    margin-bottom: 5px;
+  }
+
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .card-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .card-body {
+    padding: 18px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .field-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--subtle);
+    margin-bottom: 3px;
+  }
+
+  .field-value {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  .field-value.insight {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 15.5px;
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  .reflect-box {
+    border-top: 1px solid var(--border);
+    padding-top: 13px;
+    margin-top: auto;
+  }
+
+  .reflect-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--subtle);
+    margin-bottom: 4px;
+  }
+
+  .reflect-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  /* Bottom row */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-top: 1px solid var(--border-strong);
+  }
+
+  .meta-card {
+    background: var(--surface);
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+  }
+
+  .meta-card:last-child { border-right: none; }
+
+  .meta-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .common-item {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 7px;
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .common-item::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--subtle);
+  }
+
+  .diff-pair {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+
+  .diff-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    padding: 2px 5px;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--muted);
+    background: var(--bg);
+  }
+
+  .diff-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  /* Transition */
+  .fading { opacity: 0.35; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .wrapper { padding: 28px 16px 56px; }
+
+    .selector-row {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .vs-badge { display: none; }
+
+    .comparison-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .card {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card:last-child { border-bottom: none; }
+
+    .bottom-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .meta-card {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .meta-card:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header class="header">
+    <div class="eyebrow">Game Theory · Decision Science</div>
+    <h1>Strategic <em>Comparison</em></h1>
+    <p class="subtitle">Select two games to compare. Read slowly. Consider which situations in your own life resemble each one.</p>
+  </header>
+
+  <div class="selector-row">
+    <div class="select-wrap">
+      <label class="select-label" for="game1">Game A</label>
+      <select id="game1"></select>
+    </div>
+    <div class="vs-badge">vs</div>
+    <div class="select-wrap">
+      <label class="select-label" for="game2">Game B</label>
+      <select id="game2"></select>
+    </div>
+  </div>
+
+  <div class="comparison-grid" id="cardGrid">
+    <div class="card" id="cardA"></div>
+    <div class="card" id="cardB"></div>
+  </div>
+  <div class="bottom-grid" id="bottomGrid"></div>
+
+</div>
+
+<script>
+const games = {
+  "Prisoner's Dilemma": {
+    type: "Simultaneous · Conflict",
+    example: "Two competing telecoms slash prices expecting to gain market share. Both lose margins — real price wars show 15–25% erosion with no long-term winner.",
+    why: "Each player fears the other will defect, so they defect first to protect themselves — triggering the very outcome they tried to avoid.",
+    how: "Defect is the dominant strategy for both. The Nash equilibrium is mutual defection, even though mutual cooperation would benefit both.",
+    insight: "Individually rational choices can produce collectively terrible outcomes.",
+    reflect: "Think of a time you acted defensively assuming the other side would too. Did that assumption cause the very problem you feared?"
+  },
+  "Stag Hunt": {
+    type: "Coordination",
+    example: "Two firms jointly invest in a shared technology standard. Both benefit if they commit. If one defects, the investor loses heavily.",
+    why: "The best outcome requires mutual commitment. Cooperation is only rational if you believe the other side will also cooperate.",
+    how: "Two Nash equilibria: safe (small reward, no risk) or cooperative (large reward, requires trust). Trust determines which equilibrium is reached.",
+    insight: "High-value outcomes are available but only achievable through shared belief and mutual trust.",
+    reflect: "What do you look for before taking a risk that only pays off if someone else follows through?"
+  },
+  "Chicken": {
+    type: "Anti-coordination · Conflict",
+    example: "Two countries escalate tariffs. Trade wars historically cause 1–3% GDP losses. If one yields, the other gains political leverage.",
+    why: "Each side wants the other to yield first. Backing down signals weakness; escalating signals resolve. Mutual escalation is catastrophic.",
+    how: "No dominant strategy. The winner is whoever commits most credibly to not backing down — sometimes by visibly removing their own exit option.",
+    insight: "Credible, irreversible commitment can force a better outcome — but miscalculation causes mutual destruction.",
+    reflect: "How do you signal you will not back down in a negotiation — and how do you tell if the other side's signal is real?"
+  },
+  "Ultimatum Game": {
+    type: "Sequential · Behavioral",
+    example: "In lab experiments across 15+ countries, offers below 20–30% of the total are rejected 40–60% of the time, even when any amount beats nothing.",
+    why: "People care about fairness and will pay to punish unfairness — even at personal cost. This violates standard economic theory.",
+    how: "A rational proposer anticipates rejection and offers more than the minimum. The responder's credible threat to punish changes behavior.",
+    insight: "Human behavior is shaped by fairness norms, not just self-interest. Emotion functions as a strategic force.",
+    reflect: "Have you ever rejected something beneficial purely because it felt unfair? What were you actually protecting?"
+  },
+  "Vickrey Auction": {
+    type: "Mechanism Design",
+    example: "Online ad auctions (Google, Meta) use second-price logic. Advertisers bid their true value because overbidding risks overpaying; underbidding risks losing.",
+    why: "The rules eliminate the incentive to lie. Your bid determines only whether you win — the price is set by others.",
+    how: "Winner pays the second-highest bid. Bidding your true valuation is the dominant strategy regardless of what others do.",
+    insight: "Well-designed rules can make honesty the easiest and most rational choice.",
+    reflect: "Where else in life could rule design naturally produce honest behavior — without relying on people's goodwill?"
+  },
+  "Centipede Game": {
+    type: "Sequential",
+    example: "Lab data shows players continue 60–80% longer than backward induction predicts. Logic says exit at move one. Almost no one does.",
+    why: "Players hope for future cooperation, trust the other player's goodwill, or value the relationship over an immediate gain.",
+    how: "Backward induction says: the last player will defect, so the second-to-last should too — leading to immediate exit. Real players ignore this chain of reasoning.",
+    insight: "Optimism, trust, and social norms routinely override cold calculation in sequential decisions.",
+    reflect: "At what point would you stop trusting the other player — and what would make you hold on longer?"
+  },
+  "Battle of the Sexes": {
+    type: "Coordination · Mixed Interests",
+    example: "Two business partners must each pick a technology standard to adopt. Both prefer to coordinate, but each prefers a different standard.",
+    why: "Both parties want to be together (coordinate) but have conflicting preferences about where. Failing to coordinate means both lose.",
+    how: "Two Nash equilibria exist — one favoring each player. Which is reached depends on communication, commitment, or established convention.",
+    insight: "Coordination problems are common even when everyone wants to cooperate — the conflict is about the terms, not the goal.",
+    reflect: "How do you reach agreement when both sides want to cooperate but disagree about how?"
+  },
+  "Public Goods Game": {
+    type: "Multi-player · Social Dilemma",
+    example: "In repeated experiments, players start contributing ~50% to a shared fund. Without punishment mechanisms, contributions collapse to near zero within 10 rounds.",
+    why: "Each player benefits from others contributing, so the dominant strategy is to free-ride. When everyone reasons this way, the public good collapses.",
+    how: "Individual incentive is to contribute nothing and collect a share of others' contributions. If all defect, the fund produces nothing.",
+    insight: "Free-riding is individually rational and collectively destructive — this is the root problem behind climate action, taxes, and public infrastructure.",
+    reflect: "Think of something you benefit from that you don't contribute to. What would it take to change that?"
+  },
+  "Tragedy of the Commons": {
+    type: "Multi-player · Resource Dilemma",
+    example: "Ocean fisheries: each fleet has an incentive to catch as much as possible before others do. The collective result is stock collapse — observed in cod, tuna, and dozens of species.",
+    why: "The resource is shared but gains are private. Each individual captures the full benefit of overuse but shares the cost of depletion across all users.",
+    how: "Without regulation or social norms, rational individual exploitation destroys shared resources. Elinor Ostrom (1990) showed communities can solve this through governance.",
+    insight: "Private rationality plus shared resources equals collective ruin — unless governance structures intervene.",
+    reflect: "What shared resource in your community is being slowly depleted — and why isn't anyone stopping it?"
+  },
+  "Repeated Prisoner's Dilemma": {
+    type: "Dynamic · Iterated",
+    example: "Tit-for-Tat — start cooperative, then mirror whatever the other player did last round — won Axelrod's 1980 computer tournament against 14 other strategies.",
+    why: "Repeated interaction changes the calculus. Future reputation matters. Defecting today risks retaliation tomorrow. Cooperation can become stable.",
+    how: "With infinite or uncertain repetition, cooperation can be a Nash equilibrium. The shadow of the future makes trust rational.",
+    insight: "Many one-shot dilemmas become solvable through repetition. Relationships, institutions, and reputation exist to enable this.",
+    reflect: "How does knowing you will deal with someone again change how you treat them right now?"
+  },
+  "Signaling Game": {
+    type: "Asymmetric Information · Sequential",
+    example: "A university degree signals productivity to employers — even when the curriculum is irrelevant. The signal is credible because it is costly to fake for low-ability candidates.",
+    why: "One party has private information. They take a costly action to signal it. The other party updates their belief based on the signal's cost.",
+    how: "In equilibrium, the signal separates types: high types send it, low types don't — because it is too expensive for low types to mimic.",
+    insight: "Credible signals must be costly to fake. This explains degrees, warranties, luxury goods, guarantees, and peacock tails.",
+    reflect: "What signals do you send about your competence or values — and are they actually hard to fake?"
+  },
+  "Nash Bargaining": {
+    type: "Cooperative · Bargaining",
+    example: "Labor union negotiations. If both sides fail to agree, both suffer: workers lose wages, the firm loses output. The disagreement point shapes the final deal.",
+    why: "Both players have incentive to reach a deal, but each wants the largest share. The threat of no deal — the disagreement point — is the key lever.",
+    how: "Nash's solution maximizes the product of both players' gains over their disagreement payoff. Players with stronger outside options receive more.",
+    insight: "Your best alternative to a negotiated agreement (BATNA) is the true source of bargaining power — not arguments or emotion.",
+    reflect: "In your last negotiation, did you know your BATNA clearly? Did the other side know theirs?"
+  },
+  "Stackelberg Competition": {
+    type: "Sequential · Market",
+    example: "Boeing announces a new aircraft model and commits to a production capacity before Airbus responds. The commitment shifts the market outcome in Boeing's favor.",
+    why: "The leader moves first and commits publicly. The follower then best-responds to that commitment. First-mover advantage is real when commitments are credible.",
+    how: "The leader anticipates the follower's best response and chooses output accordingly. This yields higher profit for the leader than simultaneous competition.",
+    insight: "In sequential settings, the ability to commit — and be seen committing — is a strategic asset.",
+    reflect: "Where in your professional life could moving first and committing visibly give you an advantage?"
+  },
+  "Matching Pennies": {
+    type: "Zero-sum · Mixed Strategy",
+    example: "A penalty kick in football: the striker chooses left or right; the goalkeeper chooses to dive left or right. Each tries to outguess the other.",
+    why: "There is no pure strategy equilibrium — any predictable pattern can be exploited. The only rational approach is to randomize.",
+    how: "The Nash equilibrium is a mixed strategy: each player randomizes to make the other indifferent between their choices. This makes behavior unpredictable.",
+    insight: "In purely adversarial, zero-sum games, rational play requires randomness. Predictability is a vulnerability.",
+    reflect: "In competitive situations, how predictable are you — and is that predictability being used against you?"
+  }
+};
+
+const g1 = document.getElementById("game1");
+const g2 = document.getElementById("game2");
+const cardA = document.getElementById("cardA");
+const cardB = document.getElementById("cardB");
+const bottomGrid = document.getElementById("bottomGrid");
+const cardGrid = document.getElementById("cardGrid");
+
+const keys = Object.keys(games);
+keys.forEach(name => {
+  g1.innerHTML += `<option value="${name}">${name}</option>`;
+  g2.innerHTML += `<option value="${name}">${name}</option>`;
+});
+g2.selectedIndex = 1;
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderCard(el, name, label) {
+  const g = games[name];
+  el.innerHTML = `
+    <div class="card-header">
+      <div class="card-num">${esc(label)}</div>
+      <div class="card-title">${esc(name)}</div>
+      <div class="card-type">${esc(g.type)}</div>
+    </div>
+    <div class="card-body">
+      <div>
+        <div class="field-label">Real-world example</div>
+        <div class="field-value">${esc(g.example)}</div>
+      </div>
+      <div>
+        <div class="field-label">Why it happens</div>
+        <div class="field-value">${esc(g.why)}</div>
+      </div>
+      <div>
+        <div class="field-label">How it works</div>
+        <div class="field-value">${esc(g.how)}</div>
+      </div>
+      <div>
+        <div class="field-label">Core insight</div>
+        <div class="field-value insight">${esc(g.insight)}</div>
+      </div>
+      <div class="reflect-box">
+        <div class="reflect-label">Reflect</div>
+        <div class="reflect-text">${esc(g.reflect)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function buildCommon(A, B) {
+  const items = [];
+  const typeStr = A.type + " " + B.type;
+  const fullText = (A.why + A.insight + B.why + B.insight).toLowerCase();
+
+  if (A.type.includes("Conflict") && B.type.includes("Conflict"))
+    items.push("Both are conflict games — players have opposing interests.");
+  if (A.type.includes("Sequential") && B.type.includes("Sequential"))
+    items.push("Both unfold sequentially — order and anticipation matter.");
+  if (A.type.includes("Coordination") && B.type.includes("Coordination"))
+    items.push("Both require coordination — players benefit from aligning strategies.");
+  if (fullText.includes("trust"))
+    items.push("Trust — or its absence — shapes which outcomes are actually reached.");
+  if (typeStr.toLowerCase().includes("multi-player") || typeStr.toLowerCase().includes("social dilemma"))
+    items.push("Both involve multiple players where individual and collective interests diverge.");
+  if (typeStr.toLowerCase().includes("mechanism") || typeStr.toLowerCase().includes("signaling"))
+    items.push("Both show how the structure of interaction — rules or signals — shapes rational choices.");
+  if (items.length === 0)
+    items.push("Both are formal models of strategic choice under uncertainty.");
+  if (items.length < 2)
+    items.push("In both games, players must reason about what the other side will do.");
+  return items;
+}
+
+function compare() {
+  const nameA = g1.value, nameB = g2.value;
+  const A = games[nameA], B = games[nameB];
+
+  cardGrid.classList.add('fading');
+  bottomGrid.classList.add('fading');
+
+  setTimeout(() => {
+    renderCard(cardA, nameA, "Game A");
+    renderCard(cardB, nameB, "Game B");
+
+    const commons = buildCommon(A, B);
+    bottomGrid.innerHTML = `
+      <div class="meta-card">
+        <div class="meta-label">What they share</div>
+        ${commons.map(c => `<div class="common-item">${esc(c)}</div>`).join('')}
+      </div>
+      <div class="meta-card">
+        <div class="meta-label">What sets them apart</div>
+        <div class="diff-pair">
+          <span class="diff-tag">A</span>
+          <span class="diff-text"><strong>${esc(A.type)}</strong> — ${esc(A.insight)}</span>
+        </div>
+        <div class="diff-pair">
+          <span class="diff-tag">B</span>
+          <span class="diff-text"><strong>${esc(B.type)}</strong> — ${esc(B.insight)}</span>
+        </div>
+      </div>
+    `;
+
+    cardGrid.classList.remove('fading');
+    bottomGrid.classList.remove('fading');
+  }, 180);
+}
+
+g1.addEventListener("change", compare);
+g2.addEventListener("change", compare);
+compare();
+</script>
+</body>
+</html>
