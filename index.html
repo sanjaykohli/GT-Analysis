@@ -1,512 +1,1035 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Theory Comparison</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Thinking — Game Theory &amp; Frames</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-  :root {
-    --bg: #ffffff;
-    --surface: #f5f5f5;
-    --border: #d4d4d4;
-    --border-strong: #aaaaaa;
-    --text: #111111;
-    --muted: #666666;
-    --subtle: #999999;
-  }
+        :root {
+            --bg: #ffffff;
+            --surface: #f5f5f5;
+            --border: #d4d4d4;
+            --border-strong: #aaaaaa;
+            --text: #111111;
+            --muted: #666666;
+            --subtle: #999999;
+        }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Instrument Sans', sans-serif;
-    min-height: 100vh;
-    font-size: 15px;
-    line-height: 1.6;
-  }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Instrument Sans', sans-serif;
+            min-height: 100vh;
+            font-size: 15px;
+            line-height: 1.6;
+        }
 
-  .wrapper {
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 52px 24px 80px;
-  }
+        .wrapper {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 52px 24px 80px;
+        }
 
-  /* Header */
-  .header {
-    margin-bottom: 44px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 28px;
-  }
+        /* ── Global Header ── */
+        .site-header {
+            margin-bottom: 0;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 28px;
+            margin-bottom: 0;
+        }
 
-  .eyebrow {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
+        .eyebrow {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
 
-  h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(30px, 5vw, 50px);
-    font-weight: 400;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    margin-bottom: 10px;
-  }
+        h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(30px, 5vw, 50px);
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
 
-  h1 em {
-    font-style: italic;
-    color: var(--muted);
-  }
+        h1 em {
+            font-style: italic;
+            color: var(--muted);
+        }
 
-  .subtitle {
-    color: var(--muted);
-    font-size: 14px;
-    max-width: 520px;
-  }
+        .site-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            max-width: 560px;
+        }
 
-  /* Selectors */
-  .selector-row {
-    display: grid;
-    grid-template-columns: 1fr 36px 1fr;
-    gap: 12px;
-    align-items: end;
-    margin-bottom: 32px;
-  }
+        /* ── Section tabs ── */
+        .section-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
 
-  .vs-badge {
-    font-family: 'DM Serif Display', serif;
-    font-style: italic;
-    font-size: 17px;
-    color: var(--subtle);
-    text-align: center;
-    padding-bottom: 10px;
-  }
+        .section-tab {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 16px 22px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: color 0.15s;
+        }
 
-  .select-wrap { position: relative; }
+        .section-tab:hover {
+            color: var(--text);
+        }
 
-  .select-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
-    display: block;
-  }
+        .section-tab.active {
+            color: var(--text);
+            border-bottom-color: var(--text);
+        }
 
-  select {
-    width: 100%;
-    padding: 10px 36px 10px 12px;
-    background: var(--bg);
-    color: var(--text);
-    border: 1px solid var(--border-strong);
-    border-radius: 3px;
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 14px;
-    appearance: none;
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.15s;
-  }
+        .section-panel {
+            display: none;
+        }
 
-  select:hover { border-color: #555; }
-  select:focus { border-color: var(--text); }
+        .section-panel.active {
+            display: block;
+        }
 
-  .select-wrap::after {
-    content: '↓';
-    position: absolute;
-    right: 11px;
-    bottom: 11px;
-    color: var(--muted);
-    font-size: 12px;
-    pointer-events: none;
-  }
+        /* ══════════════════════════════════════════
+     SECTION 1 — GAME THEORY COMPARISON
+  ══════════════════════════════════════════ */
 
-  /* Main card grid */
-  .comparison-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    border: 1px solid var(--border);
-    border-bottom: none;
-  }
+        .gt-intro {
+            margin-bottom: 32px;
+        }
 
-  .card {
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--border);
-    transition: opacity 0.2s ease;
-  }
+        .gt-intro p {
+            color: var(--muted);
+            font-size: 14px;
+            max-width: 520px;
+        }
 
-  .card:last-child { border-right: none; }
+        .selector-row {
+            display: grid;
+            grid-template-columns: 1fr 36px 1fr;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 32px;
+        }
 
-  .card-header {
-    padding: 18px 20px 14px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
+        .vs-badge {
+            font-family: 'DM Serif Display', serif;
+            font-style: italic;
+            font-size: 17px;
+            color: var(--subtle);
+            text-align: center;
+            padding-bottom: 10px;
+        }
 
-  .card-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--subtle);
-    margin-bottom: 5px;
-  }
+        .select-wrap {
+            position: relative;
+        }
 
-  .card-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    font-weight: 400;
-    line-height: 1.2;
-    margin-bottom: 6px;
-  }
+        .select-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+            display: block;
+        }
 
-  .card-type {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-  }
+        select {
+            width: 100%;
+            padding: 10px 36px 10px 12px;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border-strong);
+            border-radius: 3px;
+            font-family: 'Instrument Sans', sans-serif;
+            font-size: 14px;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.15s;
+        }
 
-  .card-body {
-    padding: 18px 20px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
+        select:hover {
+            border-color: #555;
+        }
 
-  .field-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--subtle);
-    margin-bottom: 3px;
-  }
+        select:focus {
+            border-color: var(--text);
+        }
 
-  .field-value {
-    font-size: 13.5px;
-    line-height: 1.65;
-    color: var(--text);
-  }
+        .select-wrap::after {
+            content: '↓';
+            position: absolute;
+            right: 11px;
+            bottom: 11px;
+            color: var(--muted);
+            font-size: 12px;
+            pointer-events: none;
+        }
 
-  .field-value.insight {
-    font-family: 'DM Serif Display', serif;
-    font-style: italic;
-    font-size: 15.5px;
-    line-height: 1.4;
-    color: var(--text);
-  }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border: 1px solid var(--border);
+            border-bottom: none;
+        }
 
-  .reflect-box {
-    border-top: 1px solid var(--border);
-    padding-top: 13px;
-    margin-top: auto;
-  }
+        .gt-card {
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            transition: opacity 0.2s ease;
+        }
 
-  .reflect-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--subtle);
-    margin-bottom: 4px;
-  }
+        .gt-card:last-child {
+            border-right: none;
+        }
 
-  .reflect-text {
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.6;
-    font-style: italic;
-  }
+        .gt-card-header {
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
 
-  /* Bottom row */
-  .bottom-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    border: 1px solid var(--border);
-    border-top: 1px solid var(--border-strong);
-  }
+        .card-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--subtle);
+            margin-bottom: 5px;
+        }
 
-  .meta-card {
-    background: var(--surface);
-    padding: 16px 20px;
-    border-right: 1px solid var(--border);
-  }
+        .gt-card-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 20px;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
 
-  .meta-card:last-child { border-right: none; }
+        .gt-card-type {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
 
-  .meta-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
+        .gt-card-body {
+            padding: 18px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
 
-  .common-item {
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--text);
-    margin-bottom: 7px;
-    padding-left: 14px;
-    position: relative;
-  }
+        .field-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--subtle);
+            margin-bottom: 3px;
+        }
 
-  .common-item::before {
-    content: '—';
-    position: absolute;
-    left: 0;
-    color: var(--subtle);
-  }
+        .field-value {
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: var(--text);
+        }
 
-  .diff-pair {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    align-items: flex-start;
-  }
+        .field-value.insight {
+            font-family: 'DM Serif Display', serif;
+            font-style: italic;
+            font-size: 15.5px;
+            line-height: 1.4;
+            color: var(--text);
+        }
 
-  .diff-tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.08em;
-    padding: 2px 5px;
-    border: 1px solid var(--border-strong);
-    border-radius: 2px;
-    flex-shrink: 0;
-    margin-top: 2px;
-    color: var(--muted);
-    background: var(--bg);
-  }
+        .reflect-box {
+            border-top: 1px solid var(--border);
+            padding-top: 13px;
+            margin-top: auto;
+        }
 
-  .diff-text {
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.55;
-  }
+        .reflect-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--subtle);
+            margin-bottom: 4px;
+        }
 
-  /* Transition */
-  .fading { opacity: 0.35; }
+        .reflect-text {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+            font-style: italic;
+        }
 
-  /* Responsive */
-  @media (max-width: 640px) {
-    .wrapper { padding: 28px 16px 56px; }
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border: 1px solid var(--border);
+            border-top: 1px solid var(--border-strong);
+        }
 
-    .selector-row {
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-    .vs-badge { display: none; }
+        .meta-card {
+            background: var(--surface);
+            padding: 16px 20px;
+            border-right: 1px solid var(--border);
+        }
 
-    .comparison-grid {
-      grid-template-columns: 1fr;
-    }
+        .meta-card:last-child {
+            border-right: none;
+        }
 
-    .card {
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-    }
+        .meta-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
 
-    .card:last-child { border-bottom: none; }
+        .common-item {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text);
+            margin-bottom: 7px;
+            padding-left: 14px;
+            position: relative;
+        }
 
-    .bottom-grid {
-      grid-template-columns: 1fr;
-    }
+        .common-item::before {
+            content: '—';
+            position: absolute;
+            left: 0;
+            color: var(--subtle);
+        }
 
-    .meta-card {
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-    }
+        .diff-pair {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: flex-start;
+        }
 
-    .meta-card:last-child { border-bottom: none; }
-  }
-</style>
+        .diff-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            padding: 2px 5px;
+            border: 1px solid var(--border-strong);
+            border-radius: 2px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            color: var(--muted);
+            background: var(--bg);
+        }
+
+        .diff-text {
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.55;
+        }
+
+        .fading {
+            opacity: 0.35;
+        }
+
+        /* ══════════════════════════════════════════
+     SECTION 2 — MIRRORS & STORIES
+  ══════════════════════════════════════════ */
+
+        .ms-intro {
+            margin-bottom: 32px;
+        }
+
+        .ms-intro p {
+            color: var(--muted);
+            font-size: 14px;
+            max-width: 520px;
+            margin-bottom: 24px;
+        }
+
+        .filter-nav {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 32px;
+        }
+
+        .filter-btn {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 8px 14px;
+            border: 1px solid var(--border-strong);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background: var(--surface);
+            color: var(--text);
+            border-color: #555;
+        }
+
+        .filter-btn.active {
+            background: var(--text);
+            color: var(--bg);
+            border-color: var(--text);
+        }
+
+        .frames-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-right: none;
+        }
+
+        .frame-card {
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s;
+            position: relative;
+        }
+
+        .frame-card:hover {
+            background: var(--surface);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            z-index: 10;
+        }
+
+        .frame-card.active {
+            background: var(--surface);
+            outline: 2px solid var(--text);
+            outline-offset: -2px;
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .frame-card-top {
+            padding: 16px 18px 12px;
+            border-bottom: 1px solid var(--border);
+            background: inherit;
+        }
+
+        .frame-cat-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--subtle);
+            margin-bottom: 4px;
+        }
+
+        .frame-card-name {
+            font-family: 'DM Serif Display', serif;
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .frame-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .frame-card-body {
+            padding: 14px 18px;
+        }
+
+        .frame-teaser {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* Detail panel */
+        .detail-panel {
+            display: none;
+            border: 1px solid var(--border-strong);
+            border-top: none;
+            background: var(--bg);
+        }
+
+        @keyframes slideDownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-panel.visible {
+            display: block;
+            animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .detail-header {
+            padding: 22px 28px 18px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .detail-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 26px;
+            font-weight: 400;
+            line-height: 1.15;
+            margin-bottom: 4px;
+        }
+
+        .detail-meta {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+        }
+
+        .close-btn {
+            background: transparent;
+            border: 1px solid var(--border-strong);
+            border-radius: 3px;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 0.06em;
+            padding: 5px 12px;
+            flex-shrink: 0;
+            margin-top: 3px;
+            transition: all 0.15s;
+        }
+
+        .close-btn:hover {
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        .detail-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .detail-tab-btn {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 13px 18px;
+            border: none;
+            background: transparent;
+            color: var(--subtle);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+            transition: color 0.15s;
+            margin-bottom: -1px;
+        }
+
+        .detail-tab-btn:hover {
+            color: var(--text);
+        }
+
+        .detail-tab-btn.active {
+            color: var(--text);
+            border-bottom-color: var(--text);
+        }
+
+        .detail-tab-content {
+            display: none;
+            padding: 26px 28px;
+        }
+
+        .detail-tab-content.visible {
+            display: block;
+        }
+
+        .section-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--subtle);
+            margin-bottom: 10px;
+        }
+
+        .story-block {
+            border-left: 1.5px solid var(--border-strong);
+            padding-left: 18px;
+            margin-bottom: 20px;
+        }
+
+        .story-text p {
+            font-size: 15.5px;
+            line-height: 1.85;
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+
+        .story-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .insight-pull {
+            font-family: 'DM Serif Display', serif;
+            font-style: italic;
+            font-size: 18px;
+            line-height: 1.4;
+            color: var(--text);
+            margin: 22px 0 0;
+            padding: 18px 22px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .question-block {
+            margin-bottom: 18px;
+        }
+
+        .question-text {
+            font-size: 14.5px;
+            line-height: 1.65;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .question-why {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.65;
+            padding-left: 14px;
+            border-left: 1px solid var(--border);
+            font-style: italic;
+        }
+
+        .q-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 18px 0;
+        }
+
+        .philo-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .philo-card {
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .philo-name {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--subtle);
+            margin-bottom: 6px;
+        }
+
+        .philo-text {
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--text);
+        }
+
+        .feel-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 18px 20px;
+            margin-bottom: 0;
+        }
+
+        .feel-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--subtle);
+            margin-bottom: 10px;
+        }
+
+        .inversion-text {
+            font-family: 'DM Serif Display', serif;
+            font-style: italic;
+            font-size: 16px;
+            line-height: 1.65;
+            color: var(--text);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .wrapper {
+                padding: 28px 16px 56px;
+            }
+
+            .selector-row {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .vs-badge {
+                display: none;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gt-card {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .gt-card:last-child {
+                border-bottom: none;
+            }
+
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .meta-card {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .meta-card:last-child {
+                border-bottom: none;
+            }
+
+            .frames-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .philo-row {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-tab-btn {
+                padding: 10px 12px;
+                font-size: 9px;
+            }
+
+            .detail-tab-content {
+                padding: 18px 16px;
+            }
+
+            .detail-header {
+                padding: 16px;
+            }
+
+            .detail-title {
+                font-size: 20px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="wrapper">
+    <div class="wrapper">
 
-  <header class="header">
-    <div class="eyebrow">Game Theory · Decision Science</div>
-    <h1>Strategic <em>Comparison</em></h1>
-    <p class="subtitle">Select two games to compare. Read slowly. Consider which situations in your own life resemble each one.</p>
-  </header>
+        <!-- Site Header -->
+        <header class="site-header"
+            style="margin-bottom: 0; padding-bottom: 28px; border-bottom: 1px solid var(--border);">
+            <div class="eyebrow">Game Theory · Decision Science · Philosophy</div>
+            <h1>Strategic <em>Thinking</em></h1>
+            <p class="site-subtitle">Two tools for reasoning more clearly about the world. Compare game theory
+                structures, or explore the stories and questions that make you think differently.</p>
+        </header>
 
-  <div class="selector-row">
-    <div class="select-wrap">
-      <label class="select-label" for="game1">Game A</label>
-      <select id="game1"></select>
+        <!-- Section Tabs -->
+        <div class="section-tabs">
+            <button class="section-tab active" onclick="switchSection('gt', this)">Game Theory Comparison</button>
+            <button class="section-tab" onclick="switchSection('ms', this)">Mirrors &amp; Stories</button>
+        </div>
+
+        <!-- ══ SECTION: GAME THEORY ══ -->
+        <div id="section-gt" class="section-panel active">
+            <div class="gt-intro">
+                <p>Select two games to compare. Read slowly. Consider which situations in your own life resemble each
+                    one.</p>
+            </div>
+
+            <div class="selector-row">
+                <div class="select-wrap">
+                    <label class="select-label" for="game1">Game A</label>
+                    <select id="game1"></select>
+                </div>
+                <div class="vs-badge">vs</div>
+                <div class="select-wrap">
+                    <label class="select-label" for="game2">Game B</label>
+                    <select id="game2"></select>
+                </div>
+            </div>
+
+            <div class="comparison-grid" id="cardGrid">
+                <div class="gt-card" id="cardA"></div>
+                <div class="gt-card" id="cardB"></div>
+            </div>
+            <div class="bottom-grid" id="bottomGrid"></div>
+        </div>
+
+        <!-- ══ SECTION: MIRRORS & STORIES ══ -->
+        <div id="section-ms" class="section-panel">
+            <div class="ms-intro">
+                <p>Patterns that recur everywhere — in decisions, relationships, power, and meaning. Click any frame to
+                    look closer.</p>
+            </div>
+
+            <div class="filter-nav" id="filterNav">
+                <button class="filter-btn active" onclick="filterFrames('all', this)">All frames</button>
+                <button class="filter-btn" onclick="filterFrames('conflict', this)">Conflict</button>
+                <button class="filter-btn" onclick="filterFrames('coordination', this)">Coordination</button>
+                <button class="filter-btn" onclick="filterFrames('information', this)">Information</button>
+                <button class="filter-btn" onclick="filterFrames('social', this)">Social</button>
+                <button class="filter-btn" onclick="filterFrames('mind', this)">Mind</button>
+            </div>
+
+            <div class="frames-grid" id="framesGrid"></div>
+            <div class="detail-panel" id="detailPanel"></div>
+        </div>
+
     </div>
-    <div class="vs-badge">vs</div>
-    <div class="select-wrap">
-      <label class="select-label" for="game2">Game B</label>
-      <select id="game2"></select>
-    </div>
-  </div>
 
-  <div class="comparison-grid" id="cardGrid">
-    <div class="card" id="cardA"></div>
-    <div class="card" id="cardB"></div>
-  </div>
-  <div class="bottom-grid" id="bottomGrid"></div>
+    <script>
+        /* ══════════════════════════════════
+           SECTION SWITCHING
+        ══════════════════════════════════ */
+        function switchSection(id, btn) {
+            document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.section-tab').forEach(b => b.classList.remove('active'));
+            document.getElementById('section-' + id).classList.add('active');
+            btn.classList.add('active');
+        }
 
-</div>
+        /* ══════════════════════════════════
+           GAME THEORY DATA & LOGIC
+        ══════════════════════════════════ */
+        const games = {
+            "Prisoner's Dilemma": {
+                type: "Simultaneous · Conflict",
+                definition: "Two players each choose independently whether to cooperate or betray the other, without knowing what the other will do. The tragedy is that the outcome which is best for each player individually leads to an outcome that is worse for both than if they had both cooperated.",
+                example: "During the 1990s price war between British Airways and Virgin Atlantic, both airlines slashed fares hoping to capture market share. Neither gained lasting dominance, but both suffered years of compressed margins — a textbook mutual defection. Similarly, the US and Soviet Union during the Cold War arms race spent trillions on nuclear arsenals, each driven by the logic that the other side would arm regardless. Neither side gained strategic advantage; both simply became more expensive to exist.",
+                why: "Each player has a dominant strategy: no matter what the other does, betrayal yields a higher personal payoff. This creates a logic trap — each player, reasoning carefully, arrives at an outcome that both would prefer to avoid. The fear of being the only cooperator (the 'sucker') drives both toward defection, even when both can see the collective cost.",
+                how: "Defect is the strictly dominant strategy for both players — it yields a better payoff regardless of what the opponent does. The unique Nash equilibrium is mutual defection, which is Pareto-inferior to mutual cooperation. The tragedy is that the equilibrium is stable: no player can unilaterally improve their outcome by changing strategy.",
+                insight: "Individually rational choices can produce collectively irrational outcomes. The problem isn't selfishness — it's the structure of the game itself.",
+                reflect: "Think of a situation at work or in a relationship where you acted defensively, assuming the other side would too. Did your assumption create the very outcome you were trying to avoid?"
+            },
+            "Stag Hunt": {
+                type: "Coordination · Trust",
+                definition: "Two hunters can either cooperate to catch a large stag — which requires both to commit — or each independently hunt a small hare. The stag is the better prize, but only available if both commit. It is a game about trust, not conflict: both players prefer the cooperative outcome, but only if they can believe the other will follow through.",
+                example: "In 2006, the governments of France and Germany committed jointly to fund Airbus's A380 superjumbo, each needing the other to sustain the programme. If either had withdrawn, the investment by the remaining partner would have been catastrophic. The project succeeded — but only because mutual commitment was credible and public. By contrast, early European efforts to coordinate on a single mobile telephony standard in the 1980s failed because no single country trusted others to adopt it first, leaving fragmented incompatible networks for years.",
+                why: "Cooperation is the best outcome for everyone, but it requires each player to believe the other will cooperate. If you doubt the other player's commitment, defecting to the safe option (hunting hare) is rational. The game tests not selfishness but confidence in shared intentions — a much more fragile resource.",
+                how: "Unlike the Prisoner's Dilemma, there is no dominant strategy. Two Nash equilibria exist: both hunt hare (risk-dominant, safe) and both hunt stag (payoff-dominant, optimal). The equilibrium selected depends on players' beliefs about each other. Communication, reputation, and shared culture are the mechanisms through which trust tips coordination toward the better outcome.",
+                insight: "The best outcomes in life require not just individual courage but mutual confidence. Trust is not a feeling — it is a shared belief that two people can rely on.",
+                reflect: "What would you need to see or hear from another person before committing to a high-risk, high-reward collaboration that only works if they commit too?"
+            },
+            "Chicken": {
+                type: "Anti-coordination · Conflict",
+                definition: "Two players drive toward each other at speed. Each prefers the other to swerve. If neither swerves, both are destroyed. If one swerves, the other wins prestige at the swerving player's expense. The game captures any situation where mutual aggression is catastrophic but yielding carries a real cost.",
+                example: "The 1962 Cuban Missile Crisis was Chicken played at civilizational stakes. Neither Kennedy nor Khrushchev could afford to appear to back down publicly, yet mutual escalation risked nuclear war. The resolution — the Soviets removing missiles in exchange for a private US commitment to remove missiles from Turkey — required face-saving mechanisms that let both sides technically not blink. Modern trade wars follow the same logic: the US-China tariff escalation of 2018–2019 caused both economies measurable harm while each waited for the other to yield first.",
+                why: "Winning at Chicken requires convincing the other player that you will not swerve, which is most credible when you genuinely cannot swerve. This creates paradoxical incentives for seemingly irrational behaviour — burning your own bridges, making public commitments, removing your steering wheel — because commitment is the source of strategic strength. The danger is that if both players commit fully, catastrophe is guaranteed.",
+                how: "There is no dominant strategy. The Nash equilibria in pure strategies are: one player swerves, the other goes straight. Neither player can unilaterally improve their outcome given what the other does. A mixed-strategy equilibrium also exists, but in practice the game is decided by who can commit most credibly and who fears mutual destruction more.",
+                insight: "The player who can credibly commit to not backing down wins — but the very logic that makes commitment powerful also makes miscalculation catastrophic.",
+                reflect: "In a recent conflict or negotiation, could you tell whether the other side's firmness was genuine commitment or a bluff? How much did the answer matter?"
+            },
+            "Ultimatum Game": {
+                type: "Sequential · Behavioral",
+                definition: "One player is given a sum of money and proposes how to split it between themselves and a second player. The second player can accept — in which case both receive the proposed amounts — or reject, in which case neither receives anything. Standard economic theory predicts the proposer will offer the minimum; experiments consistently show this prediction fails because people punish unfairness even at personal cost.",
+                example: "In the early 1980s, Werner Güth and colleagues ran the first controlled ultimatum game experiments and found that most proposers offered 40–50% of the pie, and most offers below 20–25% were rejected. These findings have now been replicated across more than 30 cultures, including subsistence societies with no formal markets. The rejection rates vary culturally — some societies accept lower offers — but rejection of unfair splits is universal. In one cross-cultural study (Henrich et al., 2001), the Machiguenga of Peru accepted very low offers, while the Au people of Papua New Guinea rejected even generous ones for being too generous, suggesting strong offers carried an implied obligation.",
+                why: "Human beings are not purely self-interested maximizers — they have preferences over fairness and will pay to enforce them. This is sometimes explained as evolved reciprocity: in repeated social interactions, accepting unfair deals signals vulnerability. Rejecting them, even at cost, maintains social standing and deters future exploitation. The emotion of indignation is doing real strategic work.",
+                how: "In formal terms, the unique subgame-perfect equilibrium is for the proposer to offer the minimum possible amount and the responder to accept. In practice, this equilibrium is almost never reached. The proposer anticipates rejection of low offers and shades upward; the responder's credible threat to punish changes the proposer's behaviour. The game shows that emotions — disgust, indignation, pride — function as commitment devices.",
+                insight: "Fairness is not merely a social nicety — it is a force that can override economic self-interest and reshape strategic outcomes.",
+                reflect: "Have you ever turned down a genuinely beneficial offer because it felt disrespectful? Looking back, were you protecting something important, or were you paying a high price for a low principle?"
+            },
+            "Vickrey Auction": {
+                type: "Mechanism Design · Information",
+                definition: "In a second-price sealed-bid auction, everyone submits a bid privately, the highest bidder wins, but pays only the second-highest price. The elegant consequence is that bidding your true value is the dominant strategy — there is no incentive to shade your bid upward or downward. The game illustrates how the design of rules can align individual incentives with honest behaviour without relying on people's goodwill.",
+                example: "Google's AdWords auction, which generated $150 billion in annual revenue by 2015, runs on a generalised second-price mechanism. Advertisers bid for keywords, but pay only slightly above the next-highest bidder's price. This design, chosen deliberately to mimic Vickrey's logic, means advertisers have reason to bid their true value for a click rather than gaming the system. eBay's proxy bidding system works similarly: you state your maximum, the system bids incrementally on your behalf, and you pay just above the second-highest bidder. The result is that the good reliably goes to whoever values it most.",
+                why: "In a standard first-price auction, you have an incentive to shade your bid below your true value to avoid overpaying — which means the good may not go to whoever values it most, and may be won at a price below what the winner would have paid. The second-price rule removes this incentive. Whatever others bid, your dominant strategy is to bid your exact value: bidding higher risks overpaying; bidding lower risks losing something you valued more than the price.",
+                how: "The Vickrey auction is strategy-proof — bidding truthfully weakly dominates all other strategies. This is formally proved through a simple dominance argument: if you bid above your value and win, you may pay more than you consider the item worth; if you shade below your value and lose, you forfeit gains. Only bidding truthfully avoids both. The result is efficient: the highest-valuing bidder always wins.",
+                insight: "A well-designed mechanism can make honesty the path of least resistance. The rule is the policy; goodwill is unnecessary.",
+                reflect: "Where in your life — in hiring, partnerships, or negotiations — could you redesign the rules so that honesty became the rational choice rather than a moral luxury?"
+            },
+            "Centipede Game": {
+                type: "Sequential · Trust",
+                definition: "Two players alternate turns along a chain of decision nodes. At each node, the current player can either 'pass' (continue the game, growing the shared pot) or 'take' (claim a larger share for themselves, ending the game). Classical backward induction says the rational move is to take immediately at the first node. In experiments, virtually no one does this.",
+                example: "In 1988, Richard McKelvey and Thomas Palfrey ran the first formal centipede game experiments. In a six-round game where total payouts could grow to $6.40, only 1% of games ended at the first node — where theory predicts all games should end. About 15% reached the final node. More strikingly, when the experimenters introduced experienced game theory graduate students, play did not converge on the equilibrium — the students continued slightly longer than novices. Even people who understand the theory don't follow it. In subsequent work with larger stakes, players consistently gave up significant expected value to keep the game alive.",
+                why: "Players continue for several interrelated reasons. First, if I expect you to continue, it is rational for me to continue too — which creates a self-fulfilling trust norm that overrides the backward induction argument. Second, 'taking' is socially perceived as grabbing and selfish; players accept lower expected outcomes to avoid that stigma. Third, humans are not natural backward inductors: we are wired to project forward optimistically, not to reason backward from hypothetical endpoints.",
+                how: "The unique subgame-perfect Nash equilibrium, derived by backward induction, is for every player to take at every node beginning from the last. This unravels the game to the very first move. In large-scale replications across cultures, observed behaviour consistently deviates from this prediction. The game is most useful as a test of how much social norm, trust, and optimism can sustain cooperation against a theory that says it shouldn't survive.",
+                insight: "Cold logic says defect immediately. But trust, reputation, and optimism routinely keep games alive far longer — and often produce better outcomes for everyone as a result.",
+                reflect: "Think of a collaboration you continued longer than strictly rational calculation would have justified. What kept you going — and were you right to stay?"
+            },
+            "Battle of the Sexes": {
+                type: "Coordination · Mixed Interests",
+                definition: "Two players both prefer to coordinate on a single outcome but each prefers a different one. The game captures any situation where the desire to be 'in sync' is universal, but the content of that synchrony is contested. It is a game of coordination under disagreement — distinct from games where players are indifferent about terms.",
+                example: "When the EU attempted to unify its member states on a single mobile payment standard in the 2010s, every country agreed that coordination was necessary but each favoured a different technical architecture — often the one produced by its own national champions. The result was years of fragmented adoption and incompatible systems across borders, costing the bloc billions in interoperability costs. The same dynamic appears in international accounting standards: the US GAAP versus IFRS debate persisted for decades even though both sides agreed that a single global standard was preferable to two competing ones.",
+                why: "The tension is not about whether to cooperate but about who bears the cost of conceding on terms. Each player has a genuine preference — it is not arbitrary — and conceding means accepting an outcome they value less. This leads to posturing, delay, and strategic ambiguity as each tries to establish that the other will concede. Communication helps but does not fully resolve the problem because statements of intent can be cheap talk.",
+                how: "There are two pure Nash equilibria, one favoring each player, and a mixed-strategy equilibrium in which both players randomise in a way that equalises expected payoffs. The mixed equilibrium is less attractive because it involves frequent coordination failures. In practice, which equilibrium is reached depends on focal points, pre-existing conventions, first-mover commitments, or the ability of one player to make a credible public commitment.",
+                insight: "Wanting the same thing — coordination — is not enough to produce it. The terms of coordination are themselves a contested game.",
+                reflect: "In a partnership or team, have you ever spent more energy fighting over how to cooperate than you would have spent simply doing the task? What decided who ultimately conceded?"
+            },
+            "Public Goods Game": {
+                type: "Multi-player · Social Dilemma",
+                definition: "Each player in a group is given an endowment and privately decides how much to contribute to a common fund. Whatever is contributed is multiplied (reflecting the social value of public goods) and divided equally among all players. The individually rational choice is to contribute nothing and benefit from others' contributions — but if everyone reasons this way, the public good disappears entirely.",
+                example: "Ernst Fehr and colleagues ran public goods experiments in Zurich in the 1990s with groups of four players over ten rounds. In the first round, average contributions were around 50% of endowments. Without punishment opportunities, contributions decayed monotonically and reached near-zero by round ten — as free-riders gradually dominated. When participants were given the option to punish free-riders at personal cost, contributions remained high throughout. This 'altruistic punishment' finding was striking: people would pay to punish norm violations even with no future interaction. The same pattern has been observed in 15 countries with broadly consistent results.",
+                why: "Each individual earns more by withholding their contribution regardless of what others do — free-riding is the dominant strategy. But the social return on the public good exceeds the private cost of contributing, so if all players contributed fully, everyone would earn more. This divergence between individual and collective rationality is the central challenge of every public institution: taxes, open-source software, foreign aid, fisheries management, and pandemic response all have this structure.",
+                how: "In the standard game with a linear return function, the Nash equilibrium is zero contributions by all players. However, two mechanisms sustainably alter this outcome in experiments: punishment (players can penalise free-riders, even at cost to themselves) and reward. The introduction of either mechanism shifts equilibrium contributions dramatically upward. Ostrom's work on natural resource management shows that real communities develop norms, monitoring, and graduated sanctions that replicate this effect without formal enforcement.",
+                insight: "Free-riding is the default logic of shared resources. The only things that reliably override it are the threat of punishment, the presence of reputation, and the strength of social norms.",
+                reflect: "What public good in your life do you reliably free-ride on — and what would change if everyone in your position made the same choice you do?"
+            },
+            "Tragedy of the Commons": {
+                type: "Multi-player · Resource Dilemma",
+                definition: "A shared resource — a fishery, an aquifer, a highway, a corporate culture — is freely accessible to multiple users. Each user gains the full benefit of their additional use but shares the cost of depletion equally with everyone else. The individually rational choice is to use as much as possible, as fast as possible; the collective outcome is destruction of the resource.",
+                example: "The Grand Banks cod fishery off Newfoundland was once the most abundant in the world. By the 1980s, Canadian and international fleets were competing intensively, each knowing the stock was declining but calculating that if they reduced their catch, others would simply take more. In 1992, after decades of warning from scientists, Canada declared the cod morass a commercial extinction event — 40,000 jobs were lost overnight. The stock has never recovered. The same pattern has played out with Atlantic bluefin tuna, Pacific groundfish, and the Aral Sea. The tragedy isn't ignorance; in most cases, actors knew the resource was being destroyed while they were destroying it.",
+                why: "The asymmetry of benefit and cost is the engine of the tragedy. If I overfish, I gain 100% of the additional catch. The cost — tipping the fishery toward collapse — is shared across hundreds or thousands of users. My share of that broader cost is tiny relative to my private gain. Every rational actor calculates the same way, and the aggregate of individually rational decisions produces collective ruin. Hardin's 1968 essay, which named the tragedy, argued that privatisation or regulation were the only solutions — Ostrom's Nobel Prize-winning research showed he was wrong about communities being helpless.",
+                how: "Without governance, the Nash equilibrium is overexploitation. Each player's dominant strategy is to use as much as possible regardless of others' behaviour. What makes the tragedy particularly stable is that even a user who wants to conserve has little incentive to do so unilaterally — their restraint simply transfers the gain to others. Effective governance solutions include: private property rights, regulatory quotas, and Ostrom's community-managed commons with monitoring, graduated sanctions, and the right to participate in rule-making.",
+                insight: "The tragedy of the commons is not a story about greed — it is a story about incentive structures. Greed is irrelevant when the logic of the game makes overuse optimal for everyone individually.",
+                reflect: "What shared resource in your team, family, or organisation is being eroded by individually rational choices? Who, if anyone, has the standing to change the rules?"
+            },
+            "Repeated Prisoner's Dilemma": {
+                type: "Dynamic · Iterated",
+                definition: "When two players play a Prisoner's Dilemma not once but many times — or an indefinite number of times — the strategic landscape changes fundamentally. Future interactions create a shadow of the future over present choices, making cooperation potentially rational in a way that is impossible in a one-shot game. Reputation, retaliation, and reciprocity become the central dynamics.",
+                example: "In 1980, Robert Axelrod held a computer tournament: he invited game theorists to submit strategies for repeated Prisoner's Dilemma play, then ran each strategy against every other. The winner, in both rounds, was Tit-for-Tat submitted by Anatol Rapoport: cooperate on move one, then do exactly what the other player did last round. Tit-for-Tat's success was analytically surprising — it never scores more than its opponent in any individual round, yet outperforms every other strategy overall. The lesson Axelrod drew was that niceness (start cooperating), provokability (punish defection immediately), forgiveness (return to cooperation after punishment), and clarity (be predictable) are the virtues that sustain cooperation in iterated play.",
+                why: "In a repeated game with sufficient probability of future interaction, defection today triggers retaliation tomorrow. The expected loss from future retaliation can outweigh the immediate gain from defecting, making cooperation individually rational. This is sometimes called the 'shadow of the future' — it is not altruism but enlightened self-interest. The logic breaks down as the end of the relationship approaches: near the final round, the incentive to defect returns, which is why short-term relationships and lame-duck situations reliably produce bad behaviour.",
+                how: "The Folk Theorem in game theory shows that with sufficiently patient players and an indefinite horizon, almost any outcome — including full cooperation — can be sustained as a Nash equilibrium in a repeated game. What determines which equilibrium emerges is the specific strategy profile and the discount rate (how much future payoffs are valued relative to present ones). High discount rates — short time horizons, high uncertainty about future interaction — push toward the one-shot defection equilibrium. This is why trust is closely tied to stability and long time horizons.",
+                insight: "Repeated interaction transforms the logic of self-interest. The same game that guarantees mutual defection when played once can sustain cooperation indefinitely — if players expect to meet again.",
+                reflect: "Think of a relationship or partnership you have that runs well. How much of the cooperation depends on both parties knowing it is ongoing — and what would change if one side knew it was the last round?"
+            },
+            "Signaling Game": {
+                type: "Asymmetric Information · Sequential",
+                definition: "One player (the sender) has private information about their type — their quality, ability, or intentions. They take an observable action (send a signal) to communicate this information to a second player (the receiver), who then responds. For a signal to convey real information, it must be structured so that it would be too costly for a lower-type sender to imitate.",
+                example: "Michael Spence's 1973 Nobel Prize-winning paper modelled higher education as a signaling game. In Spence's model, the content of education may be largely irrelevant to job performance; what matters is that completing a university degree is harder and more costly for low-ability individuals than high-ability ones. Therefore, obtaining a degree credibly signals ability to employers, even if the education itself taught nothing useful. This is not a fringe argument — economists estimate that 20–40% of the wage premium from education may be attributable to signaling rather than skill acquisition. The same logic explains why expensive engagement rings persist: only someone with genuine long-term commitment would rationally spend several months' salary on a ring.",
+                why: "In asymmetric information environments, a sender cannot simply assert their type — talk is cheap and unverifiable. The signal works only if it is structured so that it is rational for a high type to send it and irrational for a low type to mimic. This requires that the cost of the signal falls differentially on different types: easy for the talented, ruinous for the less so. Without this property, the signal pools all types together and conveys no useful information.",
+                how: "In a separating equilibrium, different types send different signals, and receivers can perfectly infer the sender's type from the signal. In a pooling equilibrium, all types send the same signal and no information is transmitted. The conditions for a separating equilibrium require that the signal's cost differential between types exceeds the informational benefit of being misidentified. Game theory also allows partially separating equilibria in which some types are distinguished and others bundled.",
+                insight: "A signal that costs nothing communicates nothing. Credibility is manufactured through sacrifice — the willingness to pay a cost that only the genuine type would rationally bear.",
+                reflect: "What signals do you currently send about your abilities, intentions, or character — and are those signals actually costly enough to be credible to a sceptical observer?"
+            },
+            "Nash Bargaining": {
+                type: "Cooperative · Bargaining",
+                definition: "Two parties must agree on how to divide a surplus — profit from a deal, value from a contract, terms of a partnership. If they fail to reach an agreement, both receive their disagreement payoffs (often zero). John Nash proved that a unique outcome satisfies four intuitive axioms of fairness and rationality, and that this outcome depends on both parties' disagreement payoffs and their relative patience.",
+                example: "When the Screen Actors Guild negotiated with major studios in 2023, the strike lasted 118 days — the longest in Hollywood history. Both sides suffered substantial losses: actors received no income; studios had hundreds of millions in delayed production costs. The eventual settlement, which included residuals for streaming content, tracked closely with what Nash's bargaining model would have predicted given each side's outside options. The studio's BATNA improved as AI-generated content became more credible; the guild's BATNA improved as independent projects absorbed some displaced actors. The final deal reflected this power asymmetry.",
+                why: "In a bargaining problem, both players have incentive to reach agreement but each wants the best terms. The balance of power is determined by what each player receives if no agreement is reached — their disagreement point. A player whose outside options improve gains bargaining leverage without any change in rhetoric or strategy. This is why negotiation coaches consistently emphasise knowing and improving your BATNA before entering any negotiation.",
+                how: "Nash characterised the bargaining solution as the point that maximises the product of both players' gains above their disagreement payoffs. This has an important implication: a player with a very poor disagreement point (their outside option is terrible) will accept a small share, because even a small slice of the surplus beats nothing. Improvements in one player's outside option shift the entire bargained outcome in that player's favour. Rubinstein's alternating-offers model shows that patience — discount rates — is the other key variable: impatient players accept worse deals.",
+                insight: "Your bargaining power is not what you say — it is what you can walk away to. Improving your outside option before negotiating is more valuable than any argument made inside the room.",
+                reflect: "In your last significant negotiation, how clearly did you know your own outside options? Did you take steps to improve them before you sat down — and would it have changed the outcome if you had?"
+            },
+            "Stackelberg Competition": {
+                type: "Sequential · Market",
+                definition: "Two firms compete in a market, but one moves first — choosing its quantity or strategy publicly and irrevocably — before the second firm decides. The leader, by committing visibly, changes the follower's best response in a way that gives the leader a systematic advantage. The game reveals how the order of play, and the credibility of commitments, determines market outcomes independently of cost advantages.",
+                example: "When Intel chose to invest massively in manufacturing capacity for the 486 processor in 1989 — committing publicly to chip production volumes that AMD could not match without equivalent capital — it established a structural advantage that took AMD nearly a decade to erode. The announcement itself was strategic: by making the investment visible and irreversible, Intel changed the rational response of every potential competitor. A more recent example is Amazon's announcement of two-day delivery guarantees in 2005. By committing publicly to a standard its logistics infrastructure could barely meet at the time, Amazon forced every competitor to choose between matching the investment or ceding the market — a Stackelberg move executed through customer expectations rather than quantity decisions.",
+                why: "In simultaneous competition, both firms choose independently and the result is a symmetric equilibrium. When one firm moves first, it effectively chooses from a position of knowing how the follower will react — because the follower observes the leader's decision and best-responds to it. This gives the leader the ability to pre-empt the follower's optimal response by committing to a strategy that makes the follower's preferred response unattractive.",
+                how: "In the classic quantity-setting Stackelberg model, the leader maximises profit by solving backwards: first computing the follower's best-response function, then choosing the quantity that maximises profit given that function. The leader produces more than in Cournot equilibrium; the follower produces less. The leader earns higher profits and the follower earns less. Total output is higher and market price is lower than in Cournot — the leader's pre-emption benefits consumers at the follower's expense.",
+                insight: "In sequential competition, the ability to commit — loudly and irreversibly — is itself a source of strategic power, independent of any inherent cost advantage.",
+                reflect: "In your professional domain, are there decisions you could make earlier and more publicly that would shape how others respond to you — turning a simultaneous game into one where you lead?"
+            },
+            "Matching Pennies": {
+                type: "Zero-sum · Mixed Strategy",
+                definition: "Two players simultaneously choose heads or tails. One player wins if both choices match; the other wins if they differ. It is a pure zero-sum game: one player's gain is exactly the other's loss. There is no outcome both players prefer, no possibility of mutual benefit, and no stable pure strategy — any pattern of play can be detected and exploited by the opponent.",
+                example: "Research by Ignacio Palacios-Huerta tracking 1,417 penalty kicks in professional football found that professional kickers and goalkeepers approximate the mixed-strategy Nash equilibrium with remarkable accuracy: kickers score 79.6% of the time when kicking to their natural side, and goalkeepers dive to each side with frequencies that make kickers indifferent between sides. The same pattern appears in tennis serves: Walker and Wooders (2001) showed that professional tennis players mix serves in a manner consistent with Nash equilibrium, switching between deuce and advantage court serves with near-ideal frequencies. What is striking is that these athletes arrive at theoretically optimal randomisation through repeated play without any formal game theory training.",
+                why: "Any predictable pattern in a zero-sum game is exploitable. If you choose heads 70% of the time, your opponent should always choose tails. If you choose heads 100% of the time, your opponent should always choose tails. The only safe strategy is to randomise in a way that makes your opponent genuinely indifferent — so no prediction they could make gives them an edge. Predictability in a zero-sum game is the same as vulnerability.",
+                how: "The unique Nash equilibrium is a mixed strategy in which each player randomises equally between the two options. In this equilibrium, neither player can improve their expected payoff by deviating — regardless of what the opponent does. In mixed-strategy equilibria generally, players randomise to make opponents indifferent between their options, not to make themselves unpredictable for its own sake. The minimax theorem guarantees such an equilibrium exists in every finite zero-sum game.",
+                insight: "In purely adversarial competition, randomness is strategy. An opponent who can predict your next move has already beaten you.",
+                reflect: "In a competitive situation you face regularly — whether professional, athletic, or interpersonal — how predictable are your moves? Is there a pattern you repeat that someone has likely noticed and is exploiting?"
+            }
+        };
 
-<script>
-const games = {
-  "Prisoner's Dilemma": {
-    type: "Simultaneous · Conflict",
-    example: "Two competing telecoms slash prices expecting to gain market share. Both lose margins — real price wars show 15–25% erosion with no long-term winner.",
-    why: "Each player fears the other will defect, so they defect first to protect themselves — triggering the very outcome they tried to avoid.",
-    how: "Defect is the dominant strategy for both. The Nash equilibrium is mutual defection, even though mutual cooperation would benefit both.",
-    insight: "Individually rational choices can produce collectively terrible outcomes.",
-    reflect: "Think of a time you acted defensively assuming the other side would too. Did that assumption cause the very problem you feared?"
-  },
-  "Stag Hunt": {
-    type: "Coordination",
-    example: "Two firms jointly invest in a shared technology standard. Both benefit if they commit. If one defects, the investor loses heavily.",
-    why: "The best outcome requires mutual commitment. Cooperation is only rational if you believe the other side will also cooperate.",
-    how: "Two Nash equilibria: safe (small reward, no risk) or cooperative (large reward, requires trust). Trust determines which equilibrium is reached.",
-    insight: "High-value outcomes are available but only achievable through shared belief and mutual trust.",
-    reflect: "What do you look for before taking a risk that only pays off if someone else follows through?"
-  },
-  "Chicken": {
-    type: "Anti-coordination · Conflict",
-    example: "Two countries escalate tariffs. Trade wars historically cause 1–3% GDP losses. If one yields, the other gains political leverage.",
-    why: "Each side wants the other to yield first. Backing down signals weakness; escalating signals resolve. Mutual escalation is catastrophic.",
-    how: "No dominant strategy. The winner is whoever commits most credibly to not backing down — sometimes by visibly removing their own exit option.",
-    insight: "Credible, irreversible commitment can force a better outcome — but miscalculation causes mutual destruction.",
-    reflect: "How do you signal you will not back down in a negotiation — and how do you tell if the other side's signal is real?"
-  },
-  "Ultimatum Game": {
-    type: "Sequential · Behavioral",
-    example: "In lab experiments across 15+ countries, offers below 20–30% of the total are rejected 40–60% of the time, even when any amount beats nothing.",
-    why: "People care about fairness and will pay to punish unfairness — even at personal cost. This violates standard economic theory.",
-    how: "A rational proposer anticipates rejection and offers more than the minimum. The responder's credible threat to punish changes behavior.",
-    insight: "Human behavior is shaped by fairness norms, not just self-interest. Emotion functions as a strategic force.",
-    reflect: "Have you ever rejected something beneficial purely because it felt unfair? What were you actually protecting?"
-  },
-  "Vickrey Auction": {
-    type: "Mechanism Design",
-    example: "Online ad auctions (Google, Meta) use second-price logic. Advertisers bid their true value because overbidding risks overpaying; underbidding risks losing.",
-    why: "The rules eliminate the incentive to lie. Your bid determines only whether you win — the price is set by others.",
-    how: "Winner pays the second-highest bid. Bidding your true valuation is the dominant strategy regardless of what others do.",
-    insight: "Well-designed rules can make honesty the easiest and most rational choice.",
-    reflect: "Where else in life could rule design naturally produce honest behavior — without relying on people's goodwill?"
-  },
-  "Centipede Game": {
-    type: "Sequential",
-    example: "Lab data shows players continue 60–80% longer than backward induction predicts. Logic says exit at move one. Almost no one does.",
-    why: "Players hope for future cooperation, trust the other player's goodwill, or value the relationship over an immediate gain.",
-    how: "Backward induction says: the last player will defect, so the second-to-last should too — leading to immediate exit. Real players ignore this chain of reasoning.",
-    insight: "Optimism, trust, and social norms routinely override cold calculation in sequential decisions.",
-    reflect: "At what point would you stop trusting the other player — and what would make you hold on longer?"
-  },
-  "Battle of the Sexes": {
-    type: "Coordination · Mixed Interests",
-    example: "Two business partners must each pick a technology standard to adopt. Both prefer to coordinate, but each prefers a different standard.",
-    why: "Both parties want to be together (coordinate) but have conflicting preferences about where. Failing to coordinate means both lose.",
-    how: "Two Nash equilibria exist — one favoring each player. Which is reached depends on communication, commitment, or established convention.",
-    insight: "Coordination problems are common even when everyone wants to cooperate — the conflict is about the terms, not the goal.",
-    reflect: "How do you reach agreement when both sides want to cooperate but disagree about how?"
-  },
-  "Public Goods Game": {
-    type: "Multi-player · Social Dilemma",
-    example: "In repeated experiments, players start contributing ~50% to a shared fund. Without punishment mechanisms, contributions collapse to near zero within 10 rounds.",
-    why: "Each player benefits from others contributing, so the dominant strategy is to free-ride. When everyone reasons this way, the public good collapses.",
-    how: "Individual incentive is to contribute nothing and collect a share of others' contributions. If all defect, the fund produces nothing.",
-    insight: "Free-riding is individually rational and collectively destructive — this is the root problem behind climate action, taxes, and public infrastructure.",
-    reflect: "Think of something you benefit from that you don't contribute to. What would it take to change that?"
-  },
-  "Tragedy of the Commons": {
-    type: "Multi-player · Resource Dilemma",
-    example: "Ocean fisheries: each fleet has an incentive to catch as much as possible before others do. The collective result is stock collapse — observed in cod, tuna, and dozens of species.",
-    why: "The resource is shared but gains are private. Each individual captures the full benefit of overuse but shares the cost of depletion across all users.",
-    how: "Without regulation or social norms, rational individual exploitation destroys shared resources. Elinor Ostrom (1990) showed communities can solve this through governance.",
-    insight: "Private rationality plus shared resources equals collective ruin — unless governance structures intervene.",
-    reflect: "What shared resource in your community is being slowly depleted — and why isn't anyone stopping it?"
-  },
-  "Repeated Prisoner's Dilemma": {
-    type: "Dynamic · Iterated",
-    example: "Tit-for-Tat — start cooperative, then mirror whatever the other player did last round — won Axelrod's 1980 computer tournament against 14 other strategies.",
-    why: "Repeated interaction changes the calculus. Future reputation matters. Defecting today risks retaliation tomorrow. Cooperation can become stable.",
-    how: "With infinite or uncertain repetition, cooperation can be a Nash equilibrium. The shadow of the future makes trust rational.",
-    insight: "Many one-shot dilemmas become solvable through repetition. Relationships, institutions, and reputation exist to enable this.",
-    reflect: "How does knowing you will deal with someone again change how you treat them right now?"
-  },
-  "Signaling Game": {
-    type: "Asymmetric Information · Sequential",
-    example: "A university degree signals productivity to employers — even when the curriculum is irrelevant. The signal is credible because it is costly to fake for low-ability candidates.",
-    why: "One party has private information. They take a costly action to signal it. The other party updates their belief based on the signal's cost.",
-    how: "In equilibrium, the signal separates types: high types send it, low types don't — because it is too expensive for low types to mimic.",
-    insight: "Credible signals must be costly to fake. This explains degrees, warranties, luxury goods, guarantees, and peacock tails.",
-    reflect: "What signals do you send about your competence or values — and are they actually hard to fake?"
-  },
-  "Nash Bargaining": {
-    type: "Cooperative · Bargaining",
-    example: "Labor union negotiations. If both sides fail to agree, both suffer: workers lose wages, the firm loses output. The disagreement point shapes the final deal.",
-    why: "Both players have incentive to reach a deal, but each wants the largest share. The threat of no deal — the disagreement point — is the key lever.",
-    how: "Nash's solution maximizes the product of both players' gains over their disagreement payoff. Players with stronger outside options receive more.",
-    insight: "Your best alternative to a negotiated agreement (BATNA) is the true source of bargaining power — not arguments or emotion.",
-    reflect: "In your last negotiation, did you know your BATNA clearly? Did the other side know theirs?"
-  },
-  "Stackelberg Competition": {
-    type: "Sequential · Market",
-    example: "Boeing announces a new aircraft model and commits to a production capacity before Airbus responds. The commitment shifts the market outcome in Boeing's favor.",
-    why: "The leader moves first and commits publicly. The follower then best-responds to that commitment. First-mover advantage is real when commitments are credible.",
-    how: "The leader anticipates the follower's best response and chooses output accordingly. This yields higher profit for the leader than simultaneous competition.",
-    insight: "In sequential settings, the ability to commit — and be seen committing — is a strategic asset.",
-    reflect: "Where in your professional life could moving first and committing visibly give you an advantage?"
-  },
-  "Matching Pennies": {
-    type: "Zero-sum · Mixed Strategy",
-    example: "A penalty kick in football: the striker chooses left or right; the goalkeeper chooses to dive left or right. Each tries to outguess the other.",
-    why: "There is no pure strategy equilibrium — any predictable pattern can be exploited. The only rational approach is to randomize.",
-    how: "The Nash equilibrium is a mixed strategy: each player randomizes to make the other indifferent between their choices. This makes behavior unpredictable.",
-    insight: "In purely adversarial, zero-sum games, rational play requires randomness. Predictability is a vulnerability.",
-    reflect: "In competitive situations, how predictable are you — and is that predictability being used against you?"
-  }
-};
+        const g1 = document.getElementById("game1");
+        const g2 = document.getElementById("game2");
+        const cardA = document.getElementById("cardA");
+        const cardB = document.getElementById("cardB");
+        const bottomGrid = document.getElementById("bottomGrid");
+        const cardGrid = document.getElementById("cardGrid");
 
-const g1 = document.getElementById("game1");
-const g2 = document.getElementById("game2");
-const cardA = document.getElementById("cardA");
-const cardB = document.getElementById("cardB");
-const bottomGrid = document.getElementById("bottomGrid");
-const cardGrid = document.getElementById("cardGrid");
+        Object.keys(games).forEach(name => {
+            g1.innerHTML += `<option value="${name}">${name}</option>`;
+            g2.innerHTML += `<option value="${name}">${name}</option>`;
+        });
+        g2.selectedIndex = 1;
 
-const keys = Object.keys(games);
-keys.forEach(name => {
-  g1.innerHTML += `<option value="${name}">${name}</option>`;
-  g2.innerHTML += `<option value="${name}">${name}</option>`;
-});
-g2.selectedIndex = 1;
+        function esc(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function renderCard(el, name, label) {
-  const g = games[name];
-  el.innerHTML = `
-    <div class="card-header">
+        function renderGTCard(el, name, label) {
+            const g = games[name];
+            el.innerHTML = `
+    <div class="gt-card-header">
       <div class="card-num">${esc(label)}</div>
-      <div class="card-title">${esc(name)}</div>
-      <div class="card-type">${esc(g.type)}</div>
+      <div class="gt-card-title">${esc(name)}</div>
+      <div class="gt-card-type">${esc(g.type)}</div>
     </div>
-    <div class="card-body">
+    <div class="gt-card-body">
+      ${g.definition ? `<div>
+        <div class="field-label">What is this game?</div>
+        <div class="field-value">${esc(g.definition)}</div>
+      </div>` : ''}
       <div>
         <div class="field-label">Real-world example</div>
         <div class="field-value">${esc(g.example)}</div>
@@ -529,45 +1052,41 @@ function renderCard(el, name, label) {
       </div>
     </div>
   `;
-}
+        }
 
-function buildCommon(A, B) {
-  const items = [];
-  const typeStr = A.type + " " + B.type;
-  const fullText = (A.why + A.insight + B.why + B.insight).toLowerCase();
+        function buildCommon(A, B) {
+            const items = [];
+            const typeStr = A.type + " " + B.type;
+            const fullText = (A.why + A.insight + B.why + B.insight).toLowerCase();
+            if (A.type.includes("Conflict") && B.type.includes("Conflict"))
+                items.push("Both are conflict games — players have opposing interests.");
+            if (A.type.includes("Sequential") && B.type.includes("Sequential"))
+                items.push("Both unfold sequentially — order and anticipation matter.");
+            if (A.type.includes("Coordination") && B.type.includes("Coordination"))
+                items.push("Both require coordination — players benefit from aligning strategies.");
+            if (fullText.includes("trust"))
+                items.push("Trust — or its absence — shapes which outcomes are actually reached.");
+            if (typeStr.toLowerCase().includes("multi-player") || typeStr.toLowerCase().includes("social dilemma"))
+                items.push("Both involve multiple players where individual and collective interests diverge.");
+            if (typeStr.toLowerCase().includes("mechanism") || typeStr.toLowerCase().includes("signaling"))
+                items.push("Both show how the structure of interaction — rules or signals — shapes rational choices.");
+            if (items.length === 0)
+                items.push("Both are formal models of strategic choice under uncertainty.");
+            if (items.length < 2)
+                items.push("In both games, players must reason about what the other side will do.");
+            return items;
+        }
 
-  if (A.type.includes("Conflict") && B.type.includes("Conflict"))
-    items.push("Both are conflict games — players have opposing interests.");
-  if (A.type.includes("Sequential") && B.type.includes("Sequential"))
-    items.push("Both unfold sequentially — order and anticipation matter.");
-  if (A.type.includes("Coordination") && B.type.includes("Coordination"))
-    items.push("Both require coordination — players benefit from aligning strategies.");
-  if (fullText.includes("trust"))
-    items.push("Trust — or its absence — shapes which outcomes are actually reached.");
-  if (typeStr.toLowerCase().includes("multi-player") || typeStr.toLowerCase().includes("social dilemma"))
-    items.push("Both involve multiple players where individual and collective interests diverge.");
-  if (typeStr.toLowerCase().includes("mechanism") || typeStr.toLowerCase().includes("signaling"))
-    items.push("Both show how the structure of interaction — rules or signals — shapes rational choices.");
-  if (items.length === 0)
-    items.push("Both are formal models of strategic choice under uncertainty.");
-  if (items.length < 2)
-    items.push("In both games, players must reason about what the other side will do.");
-  return items;
-}
-
-function compare() {
-  const nameA = g1.value, nameB = g2.value;
-  const A = games[nameA], B = games[nameB];
-
-  cardGrid.classList.add('fading');
-  bottomGrid.classList.add('fading');
-
-  setTimeout(() => {
-    renderCard(cardA, nameA, "Game A");
-    renderCard(cardB, nameB, "Game B");
-
-    const commons = buildCommon(A, B);
-    bottomGrid.innerHTML = `
+        function compareGames() {
+            const nameA = g1.value, nameB = g2.value;
+            const A = games[nameA], B = games[nameB];
+            cardGrid.classList.add('fading');
+            bottomGrid.classList.add('fading');
+            setTimeout(() => {
+                renderGTCard(cardA, nameA, "Game A");
+                renderGTCard(cardB, nameB, "Game B");
+                const commons = buildCommon(A, B);
+                bottomGrid.innerHTML = `
       <div class="meta-card">
         <div class="meta-label">What they share</div>
         ${commons.map(c => `<div class="common-item">${esc(c)}</div>`).join('')}
@@ -584,15 +1103,503 @@ function compare() {
         </div>
       </div>
     `;
+                cardGrid.classList.remove('fading');
+                bottomGrid.classList.remove('fading');
+            }, 180);
+        }
 
-    cardGrid.classList.remove('fading');
-    bottomGrid.classList.remove('fading');
-  }, 180);
-}
+        g1.addEventListener("change", compareGames);
+        g2.addEventListener("change", compareGames);
+        compareGames();
 
-g1.addEventListener("change", compare);
-g2.addEventListener("change", compare);
-compare();
-</script>
+        /* ══════════════════════════════════
+           MIRRORS & STORIES DATA & LOGIC
+        ══════════════════════════════════ */
+        const frames = [
+            {
+                id: 'lobster-shore',
+                name: "The Lobster Shore",
+                tag: "Coordination without law",
+                category: "coordination",
+                teaser: "Maine lobstermen maintained a sustainable fishery for generations — with no written rules, no regulator, and no contracts.",
+                story: `For most of the 20th century, Maine lobstermen maintained sustainable harvests without government regulation, formal contracts, or any written rules. They did it through territory, shame, and memory.
+
+Each harbor community — Stonington, Vinalhaven, Friendship — had informal territorial boundaries. Outsiders who set traps in the wrong water would find their buoy lines mysteriously cut at the surface. No warning, no note, no confrontation. Just cuts. Repeat violations meant escalation: traps hauled and left on the dock. Even more serious offenses met with boats vandalized in harbor. Nobody wrote any of this down. Nobody voted on it. The rules emerged from repetition, observation, and consequence.
+
+What makes this remarkable is that every individual lobsterman had a rational incentive to defect. The waters beyond their territory held more lobster. If they could fish everywhere — catch everything — they'd profit massively in the short term. The temptation was constant and real. Yet the collective behaviour was cooperative and stable across generations. No government enforced it. No court would hear a case based on informal custom. The fishermen governed themselves.
+
+The economist Elinor Ostrom, who won the 2009 Nobel Prize in Economics, spent her career documenting exactly this phenomenon. In Swiss alpine villages, communities had managed shared meadows sustainably for over 500 years through informal governance. In Torbel, Switzerland, grazing rights on the communal alpine meadow dated back to 1224 AD — maintained entirely through local consensus, monitoring, and graduated sanctions. In Alicante, Spain, irrigation communities called huerta had managed shared water rights since the 13th century without state enforcement.
+
+Ostrom identified the conditions that allow communities to solve commons problems without privatisation or government control: clearly defined boundaries, congruence between rules and local conditions, collective choice arrangements, monitoring, graduated sanctions, conflict-resolution mechanisms, and the right of communities to organise themselves. The lobstermen had all of these — none of them explicit, all of them functional. The lesson she drew was that Garrett Hardin's famous 1968 'tragedy of the commons' had assumed away the very solutions communities had been using for centuries.`,
+                insight: "Communities don't need laws to enforce norms — they need memory, boundaries, the ability to monitor, and the social standing to exclude those who violate the rules.",
+                questions: [
+                    { q: "What norms do you operate under that were never written down and never explained to you?", why: "Most of the rules governing your behaviour were absorbed, not chosen. Tracing them reveals a great deal about who you are and why." },
+                    { q: "Which rules in your workplace or community are more powerful than the official written ones — and who enforces them?", why: "Informal enforcement is often more reliable than formal enforcement because it is immediate, personal, and impossible to appeal." },
+                    { q: "If you had to design a self-enforcing rule for a group you belong to, what would its monitoring and sanction mechanism look like?", why: "Designing for self-enforcement forces you to think about incentives rather than intentions — the difference between rules that work and rules that are merely acknowledged." }
+                ],
+                philosophy: [
+                    { name: "Elinor Ostrom — Governing the Commons (1990)", text: "Institutions for collective action are not preordained failures. Communities have designed, maintained, and modified their own rules for centuries. The tragedy is not inevitable — it follows from assuming away the solutions." },
+                    { name: "F. A. Hayek — The Use of Knowledge in Society (1945)", text: "The knowledge needed to coordinate a community is distributed across its members in ways that no central authority can aggregate. Local, tacit, and contextual knowledge is the real resource — and it flows best through decentralised institutions." }
+                ],
+                feel: "You wake before the sun and drive down to the dock in the dark. The harbour smells of diesel and salt and cold. You motor out past the breakwater, the bow light cutting through the chop, and you start hauling your traps. You know every buoy by colour — yours are orange and white, and the moment you see an unfamiliar yellow marker in your water, something tightens in your chest. Not rage, not panic. Something older and quieter. You circle it once. You note the pattern. This is the second time this week. You don't call anyone. There is no one to call. You pull out your knife, not in anger but with the calm certainty of someone enforcing a rule so obvious that its violation feels like a violation of physics. The line goes. The trap sinks. You move on to the next one. By evening, everyone in the harbour will know — not because you told them, but because they were watching. They are always watching."
+            },
+            {
+                id: 'gas-stations',
+                name: "The Silent Cartel",
+                tag: "Coordination without speaking",
+                category: "conflict",
+                teaser: "Two gas stations mirrored each other's prices daily for 11 years. They never spoke.",
+                story: `On a rural highway outside of Graz, Austria, in the mid-1980s, two petrol stations faced each other across a junction. They were the only two stations for twelve kilometres in either direction, and the relationship between them became one of the most studied cases of tacit collusion in competition economics.
+
+Every weekday morning, one station's operator would post a price on the roadside board — a hand-painted number updated with wooden digits slid into a frame. By midday, the other station had matched it exactly. Not approximately. Exactly. This continued for years without a single phone call between the operators, without a single meeting, without any written communication that authorities could find. When antitrust investigators eventually examined the case, they could demonstrate coordination empirically — the statistical correlation between the two stations' price movements was near-perfect — but could identify no communication on which to build a prosecution. The cartel law, written for explicit conspiracy, had no mechanism to address what amounted to a conversation conducted entirely through posted prices.
+
+The economist Thomas Schelling had anticipated exactly this kind of situation in his 1960 book The Strategy of Conflict. Schelling was interested in what he called 'focal points' — solutions that people gravitate toward not because they communicate but because they are salient. 'Meet me in New York' is not a solvable problem; 'meet me at the information desk of Grand Central Station at noon' is. The focal point is the frame within which coordination becomes possible without communication. In the Austrian petrol station case, the price board itself was the focal point and the communication channel simultaneously.
+
+The same logic operates in oligopolistic industries the world over. When OPEC members move prices in tandem without explicit coordination at their quarterly meetings, they are exploiting the same mechanism. When pharmaceutical companies in a duopoly raise prices in lockstep following a competitor's move, there is tacit coordination but no provable conspiracy. The industry term is 'conscious parallelism.' The legal term is 'not quite collusion.' The effect on consumers is identical.`,
+                insight: "Coordination does not require communication. Behaviour itself is a language — and in markets with few players, that language is often spoken with perfect fluency.",
+                questions: [
+                    { q: "In which of your important relationships do you and the other person follow rules you have never explicitly discussed?", why: "Implicit contracts are often more binding than explicit ones — but they are also more fragile, because breaking them cannot be named or renegotiated." },
+                    { q: "Is there a situation in your life where your silence is communicating something you have not consciously chosen to say?", why: "Silence is always a move in a game. Deciding not to speak is a decision with consequences." },
+                    { q: "What would happen if you made the unspoken rules of a relationship or arrangement explicit? Would naming them strengthen or dissolve them?", why: "Some tacit arrangements survive transparency; others depend entirely on not being examined. Knowing which is which is a form of power." }
+                ],
+                philosophy: [
+                    { name: "Thomas Schelling — The Strategy of Conflict (1960)", text: "People coordinate through salience rather than explicit agreement. The most prominent solution — the one that stands out — gets chosen, not because it is optimal but because it is obvious. Focal points are the grammar of tacit coordination." },
+                    { name: "Ludwig Wittgenstein — Philosophical Investigations (1953)", text: "Following a rule is a practice, not an internal act. You can obey a rule without being able to state it — and most of the rules you live by, you cannot state." }
+                ],
+                feel: "You are in the cab of your work truck at six in the morning, pulling out of the forecourt. Before you turn onto the highway, you glance across the junction at their sign the way you always do. Their price: unchanged from yesterday. You feel something relax in your chest. You will not change yours either. You have not spoken to the man who owns that station in four years, but you know him better than most people you call friends. You know his logic. He knows yours. When he dropped his price three weeks ago by two cents, you understood it immediately — a signal, not a cut. You matched it within the hour and he raised it back the following morning. This is a conversation. It has grammar and vocabulary and things that cannot be said. You just don't use words."
+            },
+            {
+                id: 'challenger',
+                name: "The Dissenting Engineer",
+                tag: "Voice against groupthink",
+                category: "information",
+                teaser: "Engineers warned NASA the night before the Challenger launch. They were overruled.",
+                story: `On the evening of January 27, 1986, a teleconference took place between NASA managers and engineers at Morton Thiokol, the contractor that manufactured the solid rocket boosters for the Space Shuttle Challenger. The launch was scheduled for the following morning. The predicted overnight temperature was 18°F — far below the minimum temperature at which the O-ring seals in the solid rocket boosters had ever been tested.
+
+Roger Boisjoly, a senior Thiokol engineer, had been raising this concern in formal written memos since July 1985. His memo of July 31 stated unambiguously: 'It is my honest and very real fear that if we do not take immediate action to dedicate a team to solve the problem with the field joint having the number one priority, then we stand in jeopardy of losing a flight along with all the members of the crew.' Nobody outside Thiokol had ever seen that memo.
+
+On the teleconference that evening, Boisjoly and his colleagues presented data and urged a launch delay. A Thiokol manager, Jerald Mason, then made a decision. He asked the engineers to step out of the management caucus and said, explicitly: 'Take off your engineering hat and put on your management hat.'
+
+The engineers voted against the launch. The managers overrode them and signed the flight recommendation. Challenger launched the following morning. Seventy-three seconds into flight, the O-ring failed at the joint Boisjoly had identified. All seven crew members were killed.
+
+The Rogers Commission, which investigated the disaster, found not a failure of information but a failure of information flow. The information existed. It was documented, specific, and correct. It was transmitted — but each level of the organisational hierarchy transformed the signal before passing it upward. By the time it reached decision-makers, it had been filtered, contextualised, and diluted into something that read as 'manageable concern' rather than 'probable fatal flaw.'
+
+Boisjoly later testified before Congress and was effectively blacklisted by the aerospace industry for his testimony. He spent the rest of his career speaking publicly about what he called 'management by intimidation.' The psychologist Amy Edmondson, who studied surgical teams at Harvard in the 1990s, identified the same pattern in medicine: teams where nurses felt safe raising concerns with surgeons had significantly better patient outcomes. She called the enabling condition 'psychological safety.' The name is new; the Challenger engineers would have recognised the concept instantly.`,
+                insight: "Information in organisations doesn't flow freely — it gets shaped at every level by what people in each position fear to say and what they hope to hear.",
+                questions: [
+                    { q: "Think of the last time you had information that contradicted what your organisation or team wanted to hear. What did you do with it, exactly?", why: "The gap between what you knew and what you said is where institutional failure lives." },
+                    { q: "What information is currently not reaching the people who need it in your work or life — and what is blocking it?", why: "The blockage is almost always structural or social, never accidental. Identifying the structure tells you where to intervene." },
+                    { q: "Is there someone whose warnings you have dismissed because acting on them would have been costly or inconvenient?", why: "We frequently filter out warnings not because they are wrong but because they are expensive to heed. Recognising this is the first step to not filtering them." }
+                ],
+                philosophy: [
+                    { name: "Hannah Arendt — Eichmann in Jerusalem (1963)", text: "Bureaucracy diffuses responsibility across so many layers that no individual feels culpable. The system produces terrible outcomes not through malice but through the structured removal of personal accountability from every node." },
+                    { name: "Amy Edmondson — The Fearless Organization (2018)", text: "Psychological safety — the belief that you will not be punished for speaking up — is the single strongest predictor of team performance. Its absence kills innovation, suppresses warnings, and creates the conditions for Challengers." }
+                ],
+                feel: "You wrote the memo eight months ago. You said it clearly: this will fail. You used the words 'honest and very real fear.' You submitted it through the proper channels and received a reply thanking you for your diligence. Tonight you are in a conference call that is supposed to be a technical review and has become something else — a ritual of reassurance. You make your case again, with the same data, the same graphs, the same unambiguous language. Someone thanks you. Someone asks a tangential question. The conversation moves on. You are not being heard. Or — and this is the part you will think about for the rest of your life — you are being heard, and they have decided that what you are saying is less important than the launch schedule. You cannot tell which. The meeting ends. You drive home in the dark knowing what you know, unable to do anything with it. The memo is on file. It is documented. And it will not matter."
+            },
+            {
+                id: 'strangers-train',
+                name: "The Train Conversation",
+                tag: "Honesty with a stranger",
+                category: "social",
+                teaser: "Why do people confess their deepest truths to strangers they'll never see again?",
+                story: `The sociologist Georg Simmel wrote in 1908 about what he called the 'stranger' — a figure who is both inside and outside a social circle, near enough to interact with but distant enough that the usual rules of social performance don't fully apply. Simmel died in 1918, long before the invention of commercial air travel, but he had identified the defining feature of the aeroplane seat next to a stranger.
+
+Erving Goffman, the Canadian sociologist who studied social performance in the 1950s and 1960s, observed that people present carefully edited versions of themselves to different audiences. In 1959's The Presentation of Self in Everyday Life, he described the 'front stage' — the curated performance we give to people who matter to our social standing — and the 'backstage' — the unguarded space where the performance relaxes. The sociological puzzle of the train conversation is that a stranger becomes, paradoxically, a backstage audience. They matter enough to talk to but not enough to perform for.
+
+In 1977, social psychologist Zick Rubin published a study in which he had researchers sit next to strangers on Amtrak trains between Boston and New York. Passengers who believed the journey was a one-time encounter disclosed significantly more personal information in the first hour than passengers who were led to believe there was a chance they would meet the researcher again. The 'no future contact' condition was the key variable. It removed the social cost of honesty.
+
+This finding has been replicated in different forms. A 2013 study by Nick Epley and Juliana Schroeder found that commuters who were instructed to have a conversation with a stranger on a Chicago train reported significantly higher wellbeing than those who sat in solitude — despite predicting the opposite in advance. What people feared — the awkwardness of forced intimacy with a stranger — turned out to produce something quite different: the pleasure of being genuinely seen by someone with nothing at stake.
+
+What all of this suggests is that honesty is not primarily a character trait. It is a structural variable. We are honest when the costs of honesty are low. We are circumspect, evasive, and diplomatic when the costs are high. The train compartment, the long-haul flight, the late-night bar conversation with someone you'll never see again — these are environments in which the cost structure of honesty collapses. Confessions flow. So do genuine opinions. Real selves appear. The temporary nature of the encounter is not incidental to its depth — it is its precondition.`,
+                insight: "Honesty is less about character and more about structural incentives. We tell the truth most freely to those who have no stake in what we do with it.",
+                questions: [
+                    { q: "Who in your life are you most genuinely honest with, and what structural feature of that relationship makes it safe?", why: "The answer usually reveals something important about power, shared vulnerability, or the absence of social stakes — not about your relationship with honesty as a general trait." },
+                    { q: "Is there something you know to be true that you have never said to the person it most concerns? What exactly is the cost of saying it?", why: "Naming the cost precisely — not vaguely — is often the first step toward deciding whether it is worth paying." },
+                    { q: "Are there relationships in your life that function like the train conversation: temporary, consequence-free, structurally honest? What do you do in those spaces that you don't do elsewhere?", why: "These spaces are often more important to our sense of self than we acknowledge, and they reveal something true about what we need that our permanent relationships don't provide." }
+                ],
+                philosophy: [
+                    { name: "Georg Simmel — The Stranger (1908)", text: "The stranger is both near and far simultaneously: present enough to confide in, distant enough that the confidence carries no cost. This dualism makes the stranger a uniquely safe container for truth." },
+                    { name: "Erving Goffman — The Presentation of Self in Everyday Life (1959)", text: "All social life is performance. We are always managing impressions. The rare conditions under which we stop performing reveal not who we really are, but how thoroughly our social selves are constructed." }
+                ],
+                feel: "You are four hours into a flight to somewhere far. The cabin is dim, most people are asleep, and the person in the seat next to you has just said something about their marriage that you sense they have not said to anyone before. They didn't say it dramatically — they said it quietly, the way you say something that has been pressing against the inside of your chest for a long time and has finally found an exit. You feel an odd weight settle on you. You are holding something real. You will hold it for the duration of this flight and then put it down when the wheels touch the runway. That is the agreement you have both made, without words. You will not remember their name. They will not remember yours. The plane will land and you will both reconstitute yourselves as your normal, guarded, socially careful selves, and you will walk off in different directions, each carrying what the other put down. For now, in the dark of row 27C, you are the freest version of yourself. So are they. It has something to do with the fact that either of you can look out the window and neither of you has to look at the other."
+            },
+            {
+                id: 'sycophant-mirror',
+                name: "The Sycophant Mirror",
+                tag: "Feedback that flatters",
+                category: "information",
+                teaser: "The more power you have, the less honest the information you receive.",
+                story: `In 2009, a research team at Columbia Business School conducted an experiment they called the 'yes-man study.' They hired actors to pose as job applicants delivering identical business pitches to managers at three different levels of seniority: junior, mid-level, and senior executive. The pitches contained deliberate and obvious flaws — market size overestimates, thin competitive analysis, unsupported financial projections. Evaluators in each group were then asked for candid feedback.
+
+The pattern was precise and alarming: the more senior the executive, the less critical the feedback they gave. Junior managers identified an average of four significant flaws per pitch. Mid-level managers flagged two or three. Senior executives typically mentioned one, often framing it as a minor consideration. The pitches were identical. The seniority of the evaluator was the only variable.
+
+This is what psychologists now call the 'sycophancy gradient.' Its mechanisms are well understood: subordinates who deliver bad news to powerful people risk being perceived as disloyal, negative, or threatening. The career incentive is to soften problems, emphasise opportunities, and attribute shortfalls to external factors. Over time, the leader receives an increasingly distorted picture of reality — not because anyone is lying, but because everyone is optimising slightly against saying the uncomfortable thing.
+
+The historical record on this is extensive and grim. When Hitler was receiving intelligence reports in 1944 that the D-Day landings were more serious than initial assessments suggested, his aides prepared the morning briefings with careful sequencing — good news first, bad news buried, problems framed as 'challenges being addressed.' He received a filtered version of Normandy for three days while his Panzer reserves sat idle. When Lyndon Johnson received the first quantitative analyses suggesting the Vietnam War was unwinnable — the work done by Daniel Ellsberg and others at the RAND Corporation in 1967 — his national security team presented the findings with sufficient qualification that no sharp conclusion penetrated the Oval Office.
+
+The consequence is a structural paradox: the people with the greatest power to act on information are systematically the people who receive the worst information. The solution is not demanding honesty — people cannot easily override deep social incentives by exhortation. The solution is structural: anonymous feedback mechanisms, formal devil's advocate roles, deliberate inclusion of the most junior person's view before senior views are stated, and the cultivation of explicit relationships where honest feedback is the agreed-upon currency.`,
+                insight: "The quality of your decisions is capped by the quality of information you receive — and the higher you rise, the more systematically that information becomes distorted in your favour.",
+                questions: [
+                    { q: "Name the people in your life who will tell you straightforwardly when you are wrong. How did those relationships develop, and what conditions made them possible?", why: "Most people, when pressed, have very few such people — sometimes none. This is a structural problem worth solving deliberately, not something to assume away." },
+                    { q: "In which domains of your life do you have no reliable mechanism for getting honest feedback? What decisions are you making there on the basis of self-assessment alone?", why: "Our self-assessments are reliable in proportion to the honest external feedback we receive. Where feedback is absent, the self-image drifts toward flattery." },
+                    { q: "When you last received feedback that surprised you — that showed you something about yourself you hadn't seen — what was the structural feature of that relationship that allowed it?", why: "Understanding what made the honest feedback possible lets you replicate the structure rather than hoping it recurs by accident." }
+                ],
+                philosophy: [
+                    { name: "Seneca — Letters to Lucilius (c. 65 AD)", text: "Flatterers are more dangerous than enemies. Enemies attack from outside; flatterers corrupt from within, quietly replacing hard truths with comfortable fictions. The most damaging thing power can do to a person is surround them with agreeable people." },
+                    { name: "Michel Foucault — Discipline and Punish (1975)", text: "Power does not merely receive information — it shapes what information is recognised as relevant, credible, and worth transmitting. Those in power do not just control facts; they influence what counts as a fact." }
+                ],
+                feel: "You've given a presentation you worked on for two weeks. Forty slides. You knew going into it that the core assumption in slide eleven was shaky — you'd been troubled by it since Tuesday but didn't have time to resolve it. After the presentation, four people come up to you. One says 'really interesting.' One says 'lots to think about.' One asks a question about your fonts. One says 'great work.' You walk out into the corridor with a folder under your arm and you realise that nobody — not one person — has told you whether the core argument is sound. They've given you the social wrapper of feedback without the content. You feel, simultaneously, relieved and abandoned. You tell yourself they probably just didn't have time to go deep. You don't want to know if the alternative explanation is that they noticed the problem in slide eleven and decided not to say anything because you're the director and it was a big room."
+            },
+            {
+                id: 'threshold-model',
+                name: "The Threshold Model",
+                tag: "Why revolutions seem sudden",
+                category: "social",
+                teaser: "Everyone privately wants change, but nobody moves. Then everything changes at once.",
+                story: `In 1978, the sociologist Mark Granovetter published a paper called 'Threshold Models of Collective Behavior.' It appeared in the American Journal of Sociology and would go on to become one of the most cited papers in political science. The idea was simple and devastating.
+
+Granovetter proposed that every individual in a crowd has a personal threshold: the number of other people who need to be doing something before they will do it too. A person with a threshold of zero is a natural instigator — they will riot, protest, or cheer alone. A person with a threshold of ten joins once eleven people are already in. A person with a threshold of 100 stays home unless the crowd is already large.
+
+Collective behaviour, Granovetter showed, depends entirely on the distribution of these thresholds across a population — not on the average sentiment, not on the intensity of individual feeling, but on how the thresholds are arranged relative to each other. Consider a group with one person at threshold zero, one at threshold one, one at threshold two, and so on to threshold one hundred. The person at zero acts alone. The person at threshold one sees them and joins. Then the person at threshold two joins. The chain is complete, and what appears in all subsequent reporting as a 'spontaneous mass uprising' is actually a deterministic cascade, each individual responding rationally to the one before them.
+
+Now change the distribution slightly: everyone has a threshold of two. Nobody ever acts. The sentiment is identical. The distribution has changed, and the outcome inverts.
+
+This is why the collapse of apparently stable authoritarian regimes so often appears sudden and unpredictable. The German Democratic Republic had maintained its population under surveillance and control for forty years when the Berlin Wall came down on November 9, 1989 — not because East Germans had suddenly changed their minds about the regime but because the cascade conditions were finally met. The key trigger was a botched press conference: Politburo spokesman Günter Schabowski, unaware of the intended phased implementation, announced that travel restrictions had been lifted 'immediately, without delay.' The announcement aired on live television. Within hours, the checkpoints were overwhelmed. The cascade was instantaneous — but the thresholds had been accumulating for years.
+
+Timur Kuran, a political economist at Duke University, extended Granovetter's model in his 1995 book Private Truths, Public Lies to explain what he calls 'preference falsification': the near-universal phenomenon of people hiding their true opinions when those opinions are socially costly. Granovetter's model explains why hidden preferences can produce sudden cascades. It also explains why social tipping points are nearly impossible to predict — because the distribution of private thresholds is, by definition, not observable.`,
+                insight: "Collective behaviour is not determined by average sentiment — it is determined by the distribution of private thresholds, which no observer can see.",
+                questions: [
+                    { q: "What is something you would do if enough other people were already doing it? What is your actual threshold — and why is it set where it is?", why: "Being honest about your own threshold clarifies whether your inaction is a principled choice or a cascade condition you're waiting for." },
+                    { q: "In your organisation, team, or family, where is everyone waiting for someone else to go first — and what would happen if you had a lower threshold than you currently do?", why: "Sometimes this stasis is wisdom. Often it is the cascade that never forms because every person is waiting for the person at the adjacent threshold." },
+                    { q: "When have you been the zero-threshold actor — the person who moved first, without waiting for cover? What happened as a result, and did it surprise you?", why: "These moments are usually more significant in retrospect than they appear at the time, because you often can't see the cascade you triggered." }
+                ],
+                philosophy: [
+                    { name: "Mark Granovetter — Threshold Models of Collective Behavior (1978)", text: "What looks like mass psychology is often just arithmetic. The distribution of individual thresholds determines what is collectively possible. Two populations with identical average sentiment can produce radically different collective outcomes." },
+                    { name: "Alexis de Tocqueville — Democracy in America (1835)", text: "The most dangerous moment for a bad government is when it begins to reform. It is not the profundity of revolutionary sentiment that causes uprisings, but the moment when improvement raises expectations faster than it delivers." }
+                ],
+                feel: "You work in a place you don't like. You've worked there for three years and you've never said this out loud — not at the office, not in a meeting, not in any conversation that could be traced back. But in one-on-one conversations, in the corridor, over lunch, you've discovered that at least six of your colleagues feel the same. You've each said it quietly: 'it's a bit much, isn't it.' 'I sometimes wonder.' 'Don't quote me on this, but.' You are all waiting for someone to say it in public. You can feel the threshold out there — a number, maybe four or five, that once exceeded would make it safe for everyone else to follow. The frustrating thing is that you each have the threshold set just one above the next person's. The cascade is structurally possible. It hasn't happened because everyone is doing the same calculation and arriving at the same answer: not yet. Not me. Not first."
+            },
+            {
+                id: 'costly-signal',
+                name: "The Cost of Credibility",
+                tag: "Why sincerity requires sacrifice",
+                category: "information",
+                teaser: "If a signal is cheap to fake, it communicates nothing. Meaning requires cost.",
+                story: `In 1975, the Israeli biologist Amotz Zahavi published a paper proposing what he called the 'handicap principle.' Evolutionary theorists had long been puzzled by extravagant biological signals: the peacock's tail, the elk's antlers, the bowerbird's elaborate nest. These structures were metabolically expensive, physically burdensome, and apparently maladaptive — they made their owners heavier, slower, more visible to predators. Natural selection should have eliminated them. Instead they persisted across millions of years.
+
+Zahavi's answer was counterintuitive: the signals persist because they are costly. A small, weak peacock cannot grow and sustain a large tail — the metabolic demand would kill it. Only a genuinely healthy, high-fitness peacock can carry a big tail and survive. Therefore, the tail is an honest signal of fitness, and peahens who select large-tailed mates are making a rational, information-based choice. The signal works precisely because it is a burden. Remove the burden, and the signal loses its honesty.
+
+The handicap principle was initially controversial — many biologists found it counterintuitive. It was vindicated over the following two decades as its predictions were confirmed across hundreds of species. In 1990, the economists Sanford Grossman and Michael Stiglitz formalised a related insight in financial economics: if markets are efficient, the only way to credibly signal private information about a company's quality is through actions that would be irrational for a low-quality firm to take — such as paying large dividends (cash that a struggling firm doesn't have), maintaining excess capacity (expensive for a low-demand firm), or offering long warranties (ruinous for a manufacturer who knows the product is fragile).
+
+The same logic applies throughout human social life with remarkable precision. A job candidate who has spent three years working for free at a prestigious organisation is sending a signal that is hard to fake — because only someone who genuinely expected to benefit from the credential long-term would sustain that opportunity cost. A company offering a no-questions-asked, 365-day money-back guarantee is signalling confidence in its product, because a company that knew its product failed would be bankrupted by the returns. The three-carat engagement ring is not primarily ornamental — it is a commitment signal, credible because the cost is real and the loss of the ring on a broken engagement is a concrete penalty for reneging.
+
+The structural implication is sharp: every time you try to signal something cheaply — through words rather than actions, through assertions rather than sacrifice — you should ask whether the signal is actually landing. Cheap signals are ignored or discounted by sophisticated receivers, not because receivers are cynical, but because they are rational.`,
+                insight: "Credibility is made of cost. Words are free and therefore carry little information. The only signals that reliably communicate are those that would be irrational for a low type to send.",
+                questions: [
+                    { q: "What signals do you currently send about your competence, commitment, or character? Which of them are genuinely costly for you to fake — and which are cheap enough that anyone could send them?", why: "This distinction is the difference between signals that are actually believed and signals that are politely acknowledged and discounted." },
+                    { q: "Think of someone you deeply trust. What costly action of theirs built that trust? Could they have communicated the same thing more cheaply, and if so, why didn't they?", why: "Trust is almost always built through costly signals — actions that were risky, inconvenient, or expensive for the signaller — and recognising this clarifies how trust is actually made, not merely expressed." },
+                    { q: "Is there something important you want to communicate to someone in your life that your current signals aren't conveying? What would a genuinely costly signal look like — and are you willing to pay it?", why: "Sometimes the problem isn't what you're saying but that you're saying it in a medium that's too cheap to carry the message's weight." }
+                ],
+                philosophy: [
+                    { name: "Amotz Zahavi — The Handicap Principle (1997)", text: "A reliable signal must be a burden. The cost is the information. Removing the cost removes the credibility of the signal, regardless of the intention behind it." },
+                    { name: "Søren Kierkegaard — Either/Or (1843)", text: "There are things that cannot be communicated through assertion alone. The leap — the choice you make that commits you irrevocably, that costs you something real — is the only language in which certain truths can be spoken." }
+                ],
+                feel: "You say 'I love you' every day. You say it at the end of phone calls, at the end of evenings, reflexively, the way you might say 'take care.' You believe it when you say it. But lately you've noticed that the other person doesn't quite stop when you say it. They nod, or they say it back from habit, and the word floats in the air and lands nowhere. You know the word is still true. But something has changed in its reception, and you're dimly aware of why: it's free now. You've said it in every weather, in every context, with every inflection, and the very consistency has drained it of information. You sit with this for a while. You think about the last time you did something that was genuinely difficult for you to do — something you did for them that cost you something real. It was a while ago. You realise you've been talking about commitment while living in a way that doesn't signal it. The word and the signal have come apart. The word is cheap. The signal is absent. No amount of repetition will close that gap."
+            },
+            {
+                id: 'bad-faith',
+                name: "The Excuse Machine",
+                tag: "Self-deception as strategy",
+                category: "mind",
+                teaser: "Sartre's 'bad faith' is the art of pretending you had no choice when you did.",
+                story: `In 1943, Jean-Paul Sartre published Being and Nothingness. In it, he described a scene in a Parisian café: a waiter who performs his role with such exaggerated precision — his movements too crisp, his posture too upright, his responses delivered with the mechanical efficiency of an automaton — that Sartre uses the image as a diagnosis. The waiter, he argues, is in 'bad faith.' He is pretending to be a thing — a Waiter, a fixed and defined object — rather than acknowledging that he is a person who has freely chosen to act as a waiter today, and can freely choose otherwise tomorrow.
+
+Sartre's concept of bad faith is one of the most practically useful ideas in 20th-century philosophy. It describes the universal human tendency to deny our own freedom by treating ourselves as determined, fixed, or constrained in ways that we are not. Bad faith is the strategy of making yourself into a thing — so that things happen to you rather than you choosing them.
+
+In 1944, the same year Sartre was writing, Simone de Beauvoir — his partner and philosophical peer — was developing a parallel concept in what would become The Second Sex. She observed that women were particularly pressured by their culture to adopt bad faith: to accept that their situation was natural and inevitable rather than constructed and therefore changeable. The philosophical move was identical to the waiter's: treating contingent social arrangements as fixed facts.
+
+Bad faith appears in forms that don't announce themselves as philosophy. 'I'm not the kind of person who does that' — a sentence that closes down possibility by converting a genuine choice into a pseudo-fact about the self. 'I have no choice' — almost always false in the literal sense, almost always true in the sense that the choices are costly. 'That's just how things work here' — true descriptively, but used as a justification for not acting when action is possible. 'I'd love to, but...' — the most common grammatical structure of bad faith in English.
+
+What makes bad faith seductive is that it provides genuine psychological relief. If you have no choice, you bear no responsibility. If you are simply an accountant, or a soldier, or a parent, or a certain kind of person, then the distance between what you do and what you might have done collapses into nothing. The waiter is not making a choice every morning to put on his apron. He just is the waiter. The relief is real. So is the cost: you have traded your freedom for your comfort, and you can no longer see the door.`,
+                insight: "Bad faith is the refusal to acknowledge your own freedom by treating contingent choices as fixed facts about yourself or the world. It provides comfort at the price of agency.",
+                questions: [
+                    { q: "Where in your life are you currently telling yourself 'I have no choice' when what you actually mean is 'all available choices carry costs I'm unwilling to pay'?", why: "The distinction is enormous. One closes down possibility and prevents planning; the other opens it. The choice is always there; what's real is the cost of the alternative." },
+                    { q: "Is there a role, identity, or self-description you perform so thoroughly that you've started to believe it describes who you are rather than what you're doing?", why: "The waiter problem: the role is real and useful, but so is the person underneath it. Conflating them is where agency dies." },
+                    { q: "What would you do differently tomorrow if you genuinely believed — felt it in your body, not just thought it abstractly — that you were free to choose differently?", why: "Not as a commitment to act on. As a thought experiment that is surprisingly diagnostic about what you are actually choosing to avoid." }
+                ],
+                philosophy: [
+                    { name: "Jean-Paul Sartre — Being and Nothingness (1943)", text: "We are 'condemned to be free.' Freedom is not a gift you can accept or decline — it is the structure of conscious existence itself. Bad faith is the attempt to escape this condition by pretending to be a determined thing rather than a free subject." },
+                    { name: "Simone de Beauvoir — The Ethics of Ambiguity (1947)", text: "The person in bad faith refuses to take responsibility for their situation by treating it as natural, inevitable, or given. But the situation is always, at least partly, made. Recognising this is not comfortable. It is, however, the only basis for genuine change." }
+                ],
+                feel: "You have said 'I'm not the kind of person who does that' more times than you can count. It is your most reliable exit from uncomfortable situations. What you haven't tested — what you have never tested — is whether the statement is actually true, or whether it is a shield you picked up so long ago that you no longer see it as a shield. You notice that the sentence works. People accept it. They nod and move on and stop pushing. So you have never had to find out what's on the other side of it — what you would actually do if the situation pressed hard enough. This is its function. It doesn't describe you. It protects you from having to know yourself."
+            },
+            {
+                id: 'premortem',
+                name: "Killing Projects Early",
+                tag: "Prospective failure as a tool",
+                category: "mind",
+                teaser: "NASA and Google use a technique: assume the project already failed, then ask why.",
+                story: `In 1989, Gary Klein, a cognitive psychologist working with military planning teams, noticed a systematic problem with how groups evaluated their own plans. Standard risk analysis — 'what could go wrong?' — consistently produced optimistic outputs. People who had already committed to a plan and spent energy developing it tended to identify risks as manageable. Mild concerns were acknowledged and then set aside. The social dynamics of a committed team made sharp criticism feel like betrayal.
+
+Klein's solution was a reframe so simple it felt almost too obvious: instead of asking what could go wrong, assume that the project has already failed — catastrophically, definitively, completely — and ask the group to write the autopsy. What killed it? What went wrong? How do we explain the failure to the board, the press, the public?
+
+The reframe changed everything. Treating failure as certain rather than possible freed team members from the social pressure to be optimistic. Critics — people who had harboured doubts but stayed quiet in the planning phases — suddenly had a legitimate and structured role: they were writing the cause of death, not attacking the plan. Enthusiasm became retrospective analysis. The same people who had been nodding along were now identifying specific, concrete weaknesses they had previously suppressed.
+
+Klein published the technique under the name 'premortem' in a 1989 paper and developed it further in his 1998 book Sources of Power. It was taken up by the US military, adopted by Google's Ventures team as a standard step before funding rounds, used by NASA's Mission Control, and popularised in the behavioural economics mainstream by Daniel Kahneman, who called it 'the most useful contribution I know of' from the decision-research field.
+
+The psychological mechanism behind the premortem's effectiveness is well understood. Human beings exhibit systematic optimism bias in forward-looking assessments — we consistently underestimate time, cost, and risk when planning. This is sometimes called the 'planning fallacy,' a term Kahneman and Tversky introduced in 1979. The premortem partially corrects this by importing hindsight bias into foresight: we are far better at explaining failures that have already occurred than preventing failures that might occur. By treating the failure as having occurred, the premortem borrows the clarity of hindsight without waiting for the actual failure.
+
+The technique also addresses a specific social problem that no amount of general encouragement to 'speak up' can solve: in a group that has invested heavily in a plan, raising concerns feels disloyal. The premortem gives concern a structure — it transforms criticism from an attack on the group's work into a contribution to the group's preparation.`,
+                insight: "We are far better at explaining failures that have already happened than preventing failures that might happen. The premortem borrows hindsight and applies it before the fact.",
+                questions: [
+                    { q: "Pick something you are currently optimistic about. Assume it fails completely in twelve months. Now write a paragraph describing what happened. What came up?", why: "Treating failure as certain rather than possible surfaces concerns that optimism reliably suppresses. The paragraph you write often contains things you already knew were problems." },
+                    { q: "In which areas of your life do you have the strongest resistance to imagining failure? What does that resistance protect you from seeing?", why: "The areas where we most resist the premortem are usually the areas where we most need it." },
+                    { q: "Who in your life is most reliably right when they predict your failures or problems? How do you treat that information? Do you listen differently when they raise concerns?", why: "Most people have a designated realist in their life whom they systematically underweight. Occasionally — quite often, in retrospect — that person is just right." }
+                ],
+                philosophy: [
+                    { name: "Daniel Kahneman — Thinking, Fast and Slow (2011)", text: "The planning fallacy is not a personal failing — it is a structural feature of human forward-looking assessment. We systematically underestimate time, cost, and risk. The premortem is one of the few techniques that demonstrably reduces this bias in practice." },
+                    { name: "Stoic premeditatio malorum", text: "The Stoics practised 'negative visualisation' — the deliberate contemplation of bad outcomes — not as an exercise in pessimism but as preparation and as a remedy for the complacency that comes from assuming things will continue as they are. Marcus Aurelius: 'Whatever may happen to you was prepared for you in advance from the beginning.'" }
+                ],
+                feel: "You are in a meeting that has the feel of a rally. The plan is exciting. The slides are clean. People are finishing each other's sentences with additions rather than objections. You have a concern — specific, located, not vague — but the room's energy is moving in one direction and your concern is moving in another. You say something softened: 'one thing to keep an eye on.' People nod. The meeting moves on. Six months later, the project fails for exactly the reason you identified. This is not a story about being right. It is a story about the gap between knowing something and saying it in a way that lands — and about the meeting cultures that make that gap so wide that warnings dissolve into nods before they reach anyone who could act on them."
+            },
+            {
+                id: 'authority-gradient',
+                name: "The Altitude Problem",
+                tag: "Why planes crash and teams fail",
+                category: "social",
+                teaser: "Most aviation disasters weren't mechanical failures — they were authority gradients.",
+                story: `In 1977, a United Airlines flight crew flew a Boeing DC-8 into a hillside outside Portland, Oregon while the captain was troubleshooting a landing gear indicator light. The aircraft had sufficient fuel when the crew first noticed the indicator problem. Over the following hour, as the captain focused on the mechanical issue, the first officer and flight engineer noticed the fuel gauges dropping toward zero. Both made indirect references to the fuel state. Neither said, clearly and directly: 'We will run out of fuel in minutes and crash unless we land now.'
+
+The National Transportation Safety Board accident report documented the exact phrases used. The first officer said: 'I think that's well within our capabilities.' The flight engineer said: 'Fifteen minutes is really going to run us low on fuel.' These statements were true. They were understood. And they were insufficient. The plane ran out of fuel and crashed. Ten people died.
+
+The accident became one of the founding cases in what the aviation industry would develop as Crew Resource Management (CRM) — a systematic programme to address what researchers called the 'authority gradient problem.' In a cockpit, the captain's word is law. First officers who disagree must do so against the psychological weight of rank, experience differential, and ingrained deference. The research on cockpit communications, conducted through the 1970s and 1980s by NASA psychologist John Lauber and others, found a consistent pattern: first officers softened their language in proportion to how much they disagreed with the captain. The more urgent the concern, the less directly it was stated. Lauber called this 'cumulative deference.'
+
+CRM training, now mandatory for commercial pilots worldwide, explicitly teaches first officers to state concerns in unambiguous, unhedged language: not 'I'm a little concerned about the fuel' but 'We are critically low on fuel and I am recommending immediate diversion.' The training also teaches captains to actively solicit direct input rather than waiting for it to arrive softened and deferential through normal channels.
+
+The same authority gradient operates in every institution with a hierarchy: operating theatres, nuclear power plants, financial trading floors, hospital wards. Lucian Leape's research on medical errors in the 1990s found that nurses regularly identified medication errors that they then failed to report to physicians, or reported in hedged language that physicians dismissed. Katherine Sutcliffe and Karl Weick's research on high-reliability organisations — aircraft carriers, nuclear submarines, intensive care units — found that the most reliable teams were those that had deliberately flattened communication hierarchies so that the most junior person's concern could reach the most senior decision-maker without softening at every level.`,
+                insight: "Hierarchies do not merely distort information — they distort the language in which information is delivered. The more urgent your concern, the more the hierarchy compresses it into something a superior can ignore.",
+                questions: [
+                    { q: "Think of the last time you had critical information for someone more senior than you. How did you say it? And — honestly — how should you have said it for it to land?", why: "The gap between those two formulations is where the information died. The gap is not accidental; it is a learned social behaviour." },
+                    { q: "Who in your life unconsciously softens their communication to you because of a power or status differential? How would you know?", why: "If you manage people, supervise others, or hold any authority, this is almost certainly happening. The question is whether you have created conditions that reduce it." },
+                    { q: "Have you ever been in a situation where someone who knew the right answer was unable to say it clearly to you? What did you do — deliberately or inadvertently — to create that situation?", why: "This reframes the authority gradient as a responsibility of the senior party, not just a limitation of the junior one. You are not just a sender of information but a receiver, and receivers can design their reception." }
+                ],
+                philosophy: [
+                    { name: "Michel Foucault — Fearless Speech (2001)", text: "Parrhesia — frank speech at personal risk — was one of the most valued virtues in ancient Greek political life. The parrhesiastes speaks truth to power from a position of weakness, accepting the risk that the truth may cost them. Foucault saw its disappearance from modern institutional life as one of the great losses of contemporary political culture." },
+                    { name: "Pierre Bourdieu — Language and Symbolic Power (1991)", text: "Language is never neutral. Every utterance carries the weight of the social position from which it is issued. What you are permitted to say, and how directly you may say it, depends on where you stand in the hierarchy. The authority gradient is not psychological — it is structural." }
+                ],
+                feel: "Your boss asks what you think of the plan. It is a real question — you can see that they genuinely want to know. You have a real answer. You begin to give it, and as you speak, you hear yourself softening each sentence as it arrives at your mouth. You add 'of course I could be wrong.' You say 'it might be worth considering.' You finish, and there is a pause, and your boss says 'good, I'll keep that in mind,' and you know, with complete certainty, that nothing you said will change anything. What you said was true. You said it in a language that was designed not to be acted on. The language was designed that way by you, now, in this room, automatically and without decision, because the habit of deference runs below the level where decisions are made. On the drive home you rehearse what you should have said. It comes out clear and firm and direct. It is nothing like what left your mouth."
+            },
+            {
+                id: 'abilene-paradox',
+                name: "The Abilene Paradox",
+                tag: "The trap of false consensus",
+                category: "social",
+                teaser: "Four people take a miserable, dusty trip to Abilene that none of them actually wanted to take.",
+                story: `In 1974, management expert Jerry B. Harvey published a paper describing a family afternoon in Coleman, Texas. It was a hot, dusty day. The family was comfortably playing dominoes on a porch when the father-in-law suggested taking a 53-mile drive to Abilene for dinner.
+
+Harvey's wife said, "Sounds like a great idea." Harvey, despite knowing the drive would be sweltering and the car had no air conditioning, said, "Sounds good to me. I just hope your mother wants to go." The mother-in-law replied, "Of course I want to go."
+
+They drove to Abilene. The heat was brutal. The food was mediocre. The drive back was exhausting. When they finally returned, someone remarked, "It was a great trip, wasn't it?" The mother-in-law finally broke: "Actually, I didn't enjoy it at all. I only went because the rest of you were so enthusiastic." Harvey was stunned: "I didn't want to go! I only went to keep you all happy." His wife: "I just went along because you two seemed to want to."
+
+They had taken a miserable 106-mile round trip that no one wanted to take. Harvey realized this was a structural phenomenon, not a family quirk. Organizations do this constantly. A team commits to a doomed project, a company launches a product no one believes in, a board approves a strategy everyone privately doubts. Nobody dissented — not because they agreed, but because each person assumed everyone else agreed, and didn't want to spoil the consensus.
+
+Unlike the Prisoner's Dilemma, where people act on selfish motives against the group, the Abilene Paradox occurs precisely because people try to be agreeable. They act in what they falsely perceive to be the group's interest, based on a complete misreading of everyone else's private preferences. Pluralistic ignorance — the sociological term for this pattern — is pervasive in organizations: a majority privately reject a norm while each assumes the majority accepts it. The inability to manage agreement turns out to be just as destructive as the inability to manage conflict.
+
+Harvey later applied this analysis to Watergate. He argued that the real scandal was not that Nixon and his aides were villainous — it was that dozens of intelligent, law-abiding people went along with increasingly illegal actions, each assuming others wanted them to, none wanting to be the one who broke the consensus.`,
+                insight: "We often fail not because of conflict, but because we manage agreement so poorly that we collectively choose outcomes we individually despise.",
+                questions: [
+                    { q: "Think of a project, meeting, or commitment you are currently going along with. Are you doing it because you want to, or because you think others want you to?", why: "Identifying your own Abilene trips is the first step to stopping the car. The question is uncomfortable precisely because the answer is often obvious once asked." },
+                    { q: "When did you last ask a group directly: 'Are we doing this because we want to, or because we think everyone else wants to?'", why: "Simply naming the paradox in a meeting is often sufficient to break the spell. The hardest part is that someone has to go first." },
+                    { q: "Who in your team or organisation is most likely to be the one who says they don't want to go to Abilene? How are they treated when they do?", why: "The person who breaks false consensus is often initially perceived as difficult. They are usually the most valuable person in the room." }
+                ],
+                philosophy: [
+                    { name: "Jerry B. Harvey — The Abilene Paradox and Other Meditations on Management (1974)", text: "Organizations frequently take actions in contradiction to what they really want to do, and thus defeat the very purposes they are trying to achieve. The inability to manage agreement is the root cause." },
+                    { name: "Pluralistic Ignorance (Katz & Allport, 1931)", text: "A condition in which a majority of group members privately reject a norm, but incorrectly assume that most others accept it, and therefore go along with it publicly. The norm is maintained by no one but sustained by everyone." }
+                ],
+                feel: "You are sitting in a sweltering restaurant, looking at dry chicken on a paper plate, wondering how you got here. You didn't want to come. You are almost certain your partner didn't want to come either — but they seemed so keen when your colleague suggested it. You look around the table and everyone looks mildly miserable, yet everyone is smiling and talking about what a great idea this was. The collective performance of enthusiasm is so thick you could choke on it. You realise that if just one person — anyone — had said 'actually, I'd rather stay in,' the entire structure would have dissolved in an instant. One sentence. And instead you are all eating dry chicken in a heatwave and calling it a good time."
+            },
+            {
+                id: 'chestertons-fence',
+                name: "Chesterton's Fence",
+                tag: "The arrogance of quick fixes",
+                category: "mind",
+                teaser: "Before you tear down a fence, you must first be able to explain why it was built.",
+                story: `In his 1929 book The Thing, the English writer G.K. Chesterton formulated a principle that has quietly become one of the most useful in systems thinking. He imagined a scenario: two reformers come across a fence or gate erected across a road.
+
+The first reformer, eager and modern, looks at the barrier and says, "I don't see the use of this. Let's clear it away." The second reformer, wiser, replies: "If you don't see the use of it, I certainly won't let you clear it away. Go away and think. Then, when you can come back and tell me what it was built for, I may allow you to destroy it."
+
+The core insight is that fences don't grow naturally out of the ground. People do not expend the time, money, and political capital to erect barriers for absolutely no reason. The fence was built to solve a problem — perhaps to keep livestock in, perhaps to mark a legally binding boundary that is no longer visible, perhaps to shield against a risk that has since become invisible precisely because the fence is working. When the fence is removed, the risk returns.
+
+When we encounter a rule, a legacy process, or an inherited tradition in an organisation, our instinct is to evaluate it through the lens of our own immediate understanding. If it doesn't make sense to us right now, we assume it is obsolete or foolish. But systems have second and third-order effects. They have interdependencies that are invisible until disturbed. Removing a rule without understanding why it exists is how you accidentally absorb the risk it was absorbing on your behalf.
+
+Small but costly examples abound. In the 1990s, several major American cities eliminated 'broken windows' policing on the grounds that it was over-enforcement of minor infractions. Crime rates in several of those cities subsequently rose — not because petty crime and serious crime are morally equivalent, but because the informal social signal conveyed by maintained public order was load-bearing in ways the reformers hadn't modelled.
+
+Chesterton's point is not conservative in the political sense. He is not arguing that change is bad. He is arguing for epistemic humility: you are qualified to dismantle a system only after you deeply understand the problem the original architects were solving. Only then can you know whether the problem has genuinely disappeared, whether your new solution handles it better, or whether the fence is doing invisible work that will become visible only when you remove it.`,
+                insight: "Do not dismantle a system, habit, or rule until you can clearly articulate the problem it was originally designed to solve.",
+                questions: [
+                    { q: "What is a rule, process, or tradition in your life or work that you desperately want to eliminate as irrational or outdated?", why: "We are systematically blind to the invisible load-bearing walls of our own environments. The rule that feels most obviously unnecessary is the one most worth investigating." },
+                    { q: "If you had to argue passionately for the person who originally created that rule — assuming they were thoughtful and not foolish — what would you say?", why: "Forcing yourself into the perspective of the original architect prevents you from dismissing them as merely stupid, which is the most common way of avoiding the intellectual work." },
+                    { q: "What fences have you torn down in the past, only to discover later — sometimes much later — exactly why they were there?", why: "Second-order consequences are our best teacher of systemic humility, but only if we are willing to trace the causal chain back to our own decision." }
+                ],
+                philosophy: [
+                    { name: "G.K. Chesterton — The Thing (1929)", text: "The truth is that nobody has any business to destroy a complex social institution until he has really understood how it works. The more complex it is, the more likely that tearing it down will release forces that were only contained by its existence." },
+                    { name: "Second-Order Thinking (Howard Marks, 2011)", text: "First-order thinking asks: what will happen if I do this? Second-order thinking asks: what will happen after that? The failure to think in consequences-of-consequences is the most common cause of smart people making stupid decisions with high confidence." }
+                ],
+                feel: "You join a new company and immediately notice a weekly reporting process that takes three hours and seems completely redundant. The data is already in two dashboards. It looks like a relic of bureaucratic excess. You bring it up in a meeting and, drawing on your considerable confidence, convince the team to scrap it. Everyone praises your efficiency. You feel like the person who cuts through the noise. Six months later, a compliance audit arrives, and you discover that the 'redundant' report was the only legally admissible paper trail shielding the department from personal liability in the event of a client dispute. The data exists in the dashboards; it is not, however, dated, signed, and formatted in a regulator-approved template. You spend the following three weeks manually reconstructing six months of records, staring at the empty space where the fence used to be, beginning to understand what it was for."
+            },
+            {
+                id: 'cobra-effect',
+                name: "The Cobra Farm",
+                tag: "When measures become targets",
+                category: "information",
+                teaser: "The British offered a bounty for dead cobras in Delhi. The locals started farming them.",
+                story: `During British colonial rule in India, administrators in Delhi became alarmed by the number of venomous cobras in the city. The solution seemed self-evidently rational: offer a cash bounty for every dead cobra delivered to government offices. Pay people to kill snakes and there will be fewer snakes.
+
+Initially, the numbers were encouraging. Significant quantities of dead snakes were delivered, bounties were paid, and the streets seemed safer. But the policy contained a structural flaw that the administrators had not modelled: they had made cobra production financially attractive.
+
+Enterprising residents quickly concluded that hunting wild cobras — which was dangerous, unpredictable, and time-consuming — was an inefficient way to generate bounty revenue. A far better approach was to breed cobras in captivity, on a farm, in controlled conditions, at scale. Cobra farms appeared across the city. The British were paying out a fortune. The wild cobra population was not declining proportionally because new cobras were flowing into the supply from the farms. When the government eventually discovered what was happening, they immediately cancelled the bounty program.
+
+The cobra breeders, now holding thousands of financially worthless snakes, did the only rational thing: they opened the cages and released them into the streets. Delhi ended up with substantially more cobras than before the intervention began.
+
+This account — whether perfectly historically accurate or partly apocryphal — has become the canonical illustration of Goodhart's Law, named after the British economist Charles Goodhart who formalised the principle in 1975: 'When a measure becomes a target, it ceases to be a good measure.' The British wanted fewer cobras in the wild. They measured success by the number of dead cobras submitted. The moment those two things came apart — when the metric could be satisfied without achieving the goal — the system inverted.
+
+The pattern is structurally universal. If you measure a hospital by its waiting-room throughput times, it will discharge patients too quickly. If you reward a sales team purely on volume, they will close bad-fit deals that churn immediately. If you assess a school by standardised test scores, teachers will narrow the curriculum to the test's content and stop teaching anything that won't appear on it. If you measure an engineer's output by lines of code committed, they will write long, inefficient code. The metric is not misbehaving. The metric is doing exactly what you told it to do. The mistake was believing the metric was a reliable proxy for the thing you cared about.`,
+                insight: "People optimize for the metric, not the goal. The wider the gap between them, the more thoroughly the system will destroy itself while appearing to succeed.",
+                questions: [
+                    { q: "What metric are you currently using to measure success in your work or life? State it precisely.", why: "Identifying the exact number or proxy you are chasing is the necessary first step to seeing how it might be distorting your behaviour or the behaviour of those you manage." },
+                    { q: "If someone wanted to maximise that metric while completely undermining your actual goal, how would they do it?", why: "This red-teaming exercise reliably reveals the gap between what you want and what you are actually asking for. The answer is usually uncomfortably easy to find." },
+                    { q: "Are there any cobras you are quietly farming right now — gaming a metric imposed by someone else — because the structure of the incentive makes it rational to do so?", why: "We are frequently both the victim and the perpetrator of Goodhart's Law simultaneously. Honesty about which role we are playing at any given moment is rare." }
+                ],
+                philosophy: [
+                    { name: "Charles Goodhart — Problems of Monetary Management (1975)", text: "Any observed statistical regularity will tend to collapse once pressure is placed upon it for control purposes. The measure and the thing measured are not the same, and sustained pressure on the measure destroys the correlation." },
+                    { name: "Charlie Munger — The Psychology of Human Misjudgment (1995)", text: "Show me the incentive and I will show you the outcome. Incentives are the most powerful force in human behaviour, and they are mindless: they do not care about your intentions, only your structure." }
+                ],
+                feel: "You designed the incentive program yourself, and it was elegant. You offered a fifty-dollar bonus for every software bug fixed by the engineering team, reasoning that this would quickly clean up a chaotic codebase. For two weeks the bug count fell dramatically. You reported the results upward with quiet satisfaction. In the third week, the number of newly filed bugs spiked. You look more carefully at the commit history and realise what is happening: developers are writing small, clean bugs into the code on Monday morning, resolving them on Thursday afternoon, and collecting the bonus. The bugs are real. The fixes are real. The process is exactly as designed. You haven't fixed the software; you have subsidised the artisanal production of flaws, at fifty dollars a unit, using the budget you were given to improve quality."
+            }
+        ];
+
+        const catLabels = { all: 'All', conflict: 'Conflict', coordination: 'Coordination', information: 'Information', social: 'Social', mind: 'Mind' };
+
+        let activeCategory = 'all';
+        let activeFrameId = null;
+
+        function filterFrames(cat, btn) {
+            activeCategory = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeFrameId = null;
+            document.getElementById('detailPanel').classList.remove('visible');
+            document.getElementById('detailPanel').innerHTML = '';
+            renderFramesGrid();
+        }
+
+        function renderFramesGrid() {
+            const grid = document.getElementById('framesGrid');
+            const filtered = activeCategory === 'all' ? frames : frames.filter(f => f.category === activeCategory);
+            grid.innerHTML = filtered.map(f => `
+    <div class="frame-card ${activeFrameId === f.id ? 'active' : ''}" onclick="openFrame('${f.id}')">
+      <div class="frame-card-top">
+        <div class="frame-cat-label">${catLabels[f.category] || f.category}</div>
+        <div class="frame-card-name">${escMS(f.name)}</div>
+        <div class="frame-tag">${escMS(f.tag)}</div>
+      </div>
+      <div class="frame-card-body">
+        <div class="frame-teaser">${escMS(f.teaser)}</div>
+      </div>
+    </div>
+  `).join('');
+        }
+
+        function escMS(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function openFrame(id) {
+            activeFrameId = id;
+            const frame = frames.find(f => f.id === id);
+            if (!frame) return;
+            renderFramesGrid();
+            renderDetailPanel(frame);
+            setTimeout(() => {
+                document.getElementById('detailPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
+        }
+
+        function closeDetail() {
+            activeFrameId = null;
+            document.getElementById('detailPanel').classList.remove('visible');
+            document.getElementById('detailPanel').innerHTML = '';
+            renderFramesGrid();
+        }
+
+        function switchDetailTab(tabId, btn) {
+            document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('visible'));
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('visible');
+        }
+
+        function renderDetailPanel(frame) {
+            const panel = document.getElementById('detailPanel');
+            const storyHTML = frame.story.split('\n\n').map(p => `<p>${escMS(p)}</p>`).join('');
+            const questionsHTML = frame.questions.map((q, i) => `
+    <div class="question-block">
+      <div class="question-text">${escMS(q.q)}</div>
+      <div class="question-why">${escMS(q.why)}</div>
+    </div>
+    ${i < frame.questions.length - 1 ? '<div class="q-divider"></div>' : ''}
+  `).join('');
+            const philoHTML = `<div class="philo-row">${frame.philosophy.map(p => `
+    <div class="philo-card">
+      <div class="philo-name">${escMS(p.name)}</div>
+      <div class="philo-text">${escMS(p.text)}</div>
+    </div>
+  `).join('')}</div>`;
+
+            panel.innerHTML = `
+    <div class="detail-header">
+      <div>
+        <div class="card-num">${catLabels[frame.category] || frame.category}</div>
+        <div class="detail-title">${escMS(frame.name)}</div>
+        <div class="detail-meta">${escMS(frame.tag)}</div>
+      </div>
+      <button class="close-btn" onclick="closeDetail()">Close ×</button>
+    </div>
+    <div class="detail-tabs">
+      <button class="detail-tab-btn active" onclick="switchDetailTab('dtab-story', this)">The story</button>
+      <button class="detail-tab-btn" onclick="switchDetailTab('dtab-questions', this)">Questions</button>
+      <button class="detail-tab-btn" onclick="switchDetailTab('dtab-philo', this)">Connections</button>
+      <button class="detail-tab-btn" onclick="switchDetailTab('dtab-feel', this)">Inside the frame</button>
+    </div>
+    <div id="dtab-story" class="detail-tab-content visible">
+      <div class="section-label">What actually happened</div>
+      <div class="story-block">
+        <div class="story-text">${storyHTML}</div>
+      </div>
+      <div class="insight-pull">${escMS(frame.insight)}</div>
+    </div>
+    <div id="dtab-questions" class="detail-tab-content">
+      <div class="section-label">Questions to sit with</div>
+      ${questionsHTML}
+    </div>
+    <div id="dtab-philo" class="detail-tab-content">
+      <div class="section-label">Philosophical connections</div>
+      ${philoHTML}
+    </div>
+    <div id="dtab-feel" class="detail-tab-content">
+      <div class="section-label">What it feels like from inside</div>
+      <div class="feel-block">
+        <div class="feel-label">You are in this situation</div>
+        <div class="inversion-text">${escMS(frame.feel)}</div>
+      </div>
+    </div>
+  `;
+            panel.classList.add('visible');
+        }
+
+        renderFramesGrid();
+    </script>
 </body>
+
 </html>
